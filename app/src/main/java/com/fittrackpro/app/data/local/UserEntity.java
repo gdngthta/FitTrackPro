@@ -18,6 +18,10 @@ public class UserEntity {
     private int currentStreak;
     private double totalVolumeLifted;
     private int activePrograms;
+    private boolean synced = false;
+    private long lastSyncAttempt = 0;
+    private int syncAttempts = 0;
+    private String syncError = null;
 
     // Getters and setters
     @NonNull
@@ -50,4 +54,16 @@ public class UserEntity {
 
     public int getActivePrograms() { return activePrograms; }
     public void setActivePrograms(int activePrograms) { this.activePrograms = activePrograms; }
+
+    public boolean isSynced() { return synced; }
+    public void setSynced(boolean synced) { this.synced = synced; }
+
+    public long getLastSyncAttempt() { return lastSyncAttempt; }
+    public void setLastSyncAttempt(long lastSyncAttempt) { this.lastSyncAttempt = lastSyncAttempt; }
+
+    public int getSyncAttempts() { return syncAttempts; }
+    public void setSyncAttempts(int syncAttempts) { this.syncAttempts = syncAttempts; }
+
+    public String getSyncError() { return syncError; }
+    public void setSyncError(String syncError) { this.syncError = syncError; }
 }

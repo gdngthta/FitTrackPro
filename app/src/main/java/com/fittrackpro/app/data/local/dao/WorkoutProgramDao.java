@@ -31,4 +31,7 @@ public interface WorkoutProgramDao {
 
     @Query("DELETE FROM workout_programs WHERE userId = :userId")
     void deleteUserPrograms(String userId);
+
+    @Query("SELECT * FROM workout_programs WHERE synced = 0")
+    List<WorkoutProgramEntity> getUnsyncedPrograms();
 }

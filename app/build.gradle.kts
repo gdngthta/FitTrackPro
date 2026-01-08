@@ -65,7 +65,7 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
 
     // WorkManager
-    implementation("androidx.work:work-runtime:2.8.1")
+    implementation("androidx.work:work-runtime:2.9.0")
 
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
