@@ -101,6 +101,8 @@ public class RestTimerManager {
         isRunning = false;
         isPaused = false;
         remainingSeconds = 0;
+        // Nullify callback after all operations complete
+        TimerCallback tempCallback = callback;
         callback = null;
     }
 

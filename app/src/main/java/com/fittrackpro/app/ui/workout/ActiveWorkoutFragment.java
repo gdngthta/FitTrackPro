@@ -142,7 +142,7 @@ public class ActiveWorkoutFragment extends Fragment {
             if (shouldNotify != null && shouldNotify) {
                 // Trigger vibration and sound
                 NotificationHelper.vibratePattern(requireContext(), 
-                        new long[]{0, 500, 200, 500});
+                        Constants.VIBRATION_PATTERN_REST_COMPLETE);
                 NotificationHelper.playNotificationSound(requireContext());
                 viewModel.resetRestCompleteNotification();
             }

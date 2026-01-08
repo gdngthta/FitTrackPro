@@ -73,6 +73,7 @@ public class Constants {
     public static final int MIN_REST_TIMER_SECONDS = 30;
     public static final int MAX_REST_TIMER_SECONDS = 300;
     public static final long VIBRATION_DURATION_MS = 500;
+    public static final long[] VIBRATION_PATTERN_REST_COMPLETE = {0, 500, 200, 500};
     public static final int LEADERBOARD_DEFAULT_LIMIT = 50;
     public static final int RECENT_WORKOUTS_LIMIT = 10;
 
