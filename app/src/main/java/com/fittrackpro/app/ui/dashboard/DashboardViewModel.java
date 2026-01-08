@@ -40,7 +40,7 @@ public class DashboardViewModel extends AndroidViewModel {
         super(application);
 
         AppDatabase database = AppDatabase.getInstance(application);
-        this.userRepository = new UserRepository(database);
+        this.userRepository = new UserRepository(database, application);
         this.workoutRepository = new WorkoutRepository(database);
         this.socialRepository = new SocialRepository();
     }
