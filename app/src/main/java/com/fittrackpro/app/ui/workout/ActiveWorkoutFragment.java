@@ -7,14 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.annotation. Nullable;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.fittrackpro.app.R;
 import com.fittrackpro.app.databinding.FragmentActiveWorkoutBinding;
-import com.fittrackpro. app.ui.workout.adapter. ActiveExerciseAdapter;
+import com.fittrackpro.app.ui.workout.adapter.ActiveExerciseAdapter;
+import com.fittrackpro.app.util.Constants;
+import com.fittrackpro.app.util.NotificationHelper;
+
+import java.util.Locale;
 
 /**
  * ActiveWorkoutFragment displays active workout with chronometer and exercise logging.
@@ -24,6 +29,7 @@ import com.fittrackpro. app.ui.workout.adapter. ActiveExerciseAdapter;
  * - RecyclerView of exercises with expandable sets
  * - Log weight, reps, status for each set
  * - Real-time volume calculation
+ * - Rest timer with countdown
  * - Finish button to save workout
  */
 public class ActiveWorkoutFragment extends Fragment {
@@ -70,6 +76,12 @@ public class ActiveWorkoutFragment extends Fragment {
                 (exerciseName, weight, reps, status) -> {
                     // Callback when user logs a set
                     viewModel.addSet(exerciseName, weight, reps, status);
+
+                    // Start rest timer after completing a set (not for skipped sets)
+                    if (status.equals(Constants.SET_STATUS_COMPLETED) || 
+                        status.equals(Constants.SET_STATUS_MODIFIED)) {
+                        viewModel.startRestTimer(Constants.DEFAULT_REST_TIMER_SECONDS);
+                    }
                 }
         );
         binding.recyclerExercises.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -101,6 +113,38 @@ public class ActiveWorkoutFragment extends Fragment {
         viewModel.getCompletedSets().observe(getViewLifecycleOwner(), sets -> {
             binding.textCompletedSets.setText(String.valueOf(sets != null ? sets : 0));
         });
+
+        // Observe rest timer state
+        viewModel.isTimerVisible().observe(getViewLifecycleOwner(), visible -> {
+            binding.cardRestTimer.setVisibility(visible != null && visible ? View.VISIBLE : View.GONE);
+        });
+
+        viewModel.getRestTimeRemaining().observe(getViewLifecycleOwner(), seconds -> {
+            if (seconds != null) {
+                binding.textRestCountdown.setText(formatTime(seconds));
+                
+                // Update circular progress
+                int totalSeconds = Constants.DEFAULT_REST_TIMER_SECONDS;
+                int progress = (int) ((seconds / (float) totalSeconds) * 100);
+                binding.progressRestTimer.setProgress(progress);
+            }
+        });
+
+        viewModel.isTimerPaused().observe(getViewLifecycleOwner(), paused -> {
+            if (paused != null) {
+                binding.buttonPauseRest.setText(paused ? R.string.resume : R.string.pause);
+            }
+        });
+
+        viewModel.getRestCompleteNotification().observe(getViewLifecycleOwner(), shouldNotify -> {
+            if (shouldNotify != null && shouldNotify) {
+                // Trigger vibration and sound
+                NotificationHelper.vibratePattern(requireContext(), 
+                        new long[]{0, 500, 200, 500});
+                NotificationHelper.playNotificationSound(requireContext());
+                viewModel.resetRestCompleteNotification();
+            }
+        });
     }
 
     private void setupListeners() {
@@ -117,14 +161,37 @@ public class ActiveWorkoutFragment extends Fragment {
                 }
             });
         });
+
+        // Rest timer controls
+        binding.buttonPauseRest.setOnClickListener(v -> {
+            viewModel.toggleRestTimer();
+        });
+
+        binding.buttonSkipRest.setOnClickListener(v -> {
+            viewModel.skipRestTimer();
+        });
+    }
+
+    /**
+     * Format time in MM:SS format.
+     *
+     * @param seconds Time in seconds
+     * @return Formatted string
+     */
+    private String formatTime(int seconds) {
+        int minutes = seconds / 60;
+        int secs = seconds % 60;
+        return String.format(Locale.US, "%02d:%02d", minutes, secs);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (binding. chronometer != null) {
+        if (binding.chronometer != null) {
             binding.chronometer.stop();
         }
+        // Cancel rest timer when view is destroyed
+        viewModel.cancelRestTimer();
         binding = null;
     }
 }

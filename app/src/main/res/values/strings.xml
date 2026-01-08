@@ -55,6 +55,10 @@
     <string name="reps">Reps</string>
     <string name="log_set">Log Set</string>
     <string name="skip">Skip</string>
+    <string name="skip_rest">Skip Rest</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="rest_time">Rest Time</string>
     <string name="finish_workout">Finish Workout</string>
     <string name="sets">Sets</string>
     <string name="volume">Volume</string>

@@ -13,6 +13,8 @@ import com.fittrackpro.app.data.model.CompletedWorkout;
 import com.fittrackpro.app.data.model.ProgramExercise;
 import com.fittrackpro.app.data.model.WorkoutSet;
 import com.fittrackpro.app.data.repository.WorkoutRepository;
+import com.fittrackpro.app.util.Constants;
+import com.fittrackpro.app.util.RestTimerManager;
 import com.google.firebase.Timestamp;
 
 import java.util.ArrayList;
@@ -27,11 +29,13 @@ import java.util.List;
  * - Manage exercise list
  * - Log sets (weight, reps, status)
  * - Calculate total volume
+ * - Manage rest timer
  * - Save completed workout
  */
 public class ActiveWorkoutViewModel extends AndroidViewModel {
 
     private final WorkoutRepository workoutRepository;
+    private final RestTimerManager timerManager;
 
     private final MutableLiveData<String> userId = new MutableLiveData<>();
     private final MutableLiveData<String> programId = new MutableLiveData<>();
@@ -47,11 +51,19 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
     private final MutableLiveData<Double> totalVolume = new MutableLiveData<>(0.0);
     private final MutableLiveData<Integer> completedSets = new MutableLiveData<>(0);
 
+    // Rest timer state
+    private final MutableLiveData<Integer> restTimeRemaining = new MutableLiveData<>(0);
+    private final MutableLiveData<Boolean> timerRunning = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> timerVisible = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> timerPaused = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> restCompleteNotification = new MutableLiveData<>(false);
+
     public ActiveWorkoutViewModel(@NonNull Application application) {
         super(application);
 
         AppDatabase database = AppDatabase.getInstance(application);
         this.workoutRepository = new WorkoutRepository(database);
+        this.timerManager = new RestTimerManager();
     }
 
     public void initWorkout(String userId, String programId, String dayId, String workoutName) {
@@ -179,5 +191,104 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
 
     public LiveData<Integer> getCompletedSets() {
         return completedSets;
+    }
+
+    // Rest timer methods
+
+    /**
+     * Start rest timer with specified duration.
+     *
+     * @param seconds Duration in seconds
+     */
+    public void startRestTimer(int seconds) {
+        timerManager.startTimer(seconds, new RestTimerManager.TimerCallback() {
+            @Override
+            public void onTick(int remainingSeconds) {
+                restTimeRemaining.postValue(remainingSeconds);
+            }
+
+            @Override
+            public void onFinish() {
+                restTimeRemaining.postValue(0);
+                timerRunning.postValue(false);
+                timerVisible.postValue(false);
+                timerPaused.postValue(false);
+                // Trigger notification
+                restCompleteNotification.postValue(true);
+            }
+        });
+        timerRunning.setValue(true);
+        timerVisible.setValue(true);
+        timerPaused.setValue(false);
+    }
+
+    /**
+     * Toggle rest timer pause/resume.
+     */
+    public void toggleRestTimer() {
+        if (timerManager.isPaused()) {
+            timerManager.resumeTimer();
+            timerPaused.setValue(false);
+        } else if (timerManager.isRunning()) {
+            timerManager.pauseTimer();
+            timerPaused.setValue(true);
+        }
+    }
+
+    /**
+     * Skip rest timer.
+     */
+    public void skipRestTimer() {
+        timerManager.skipTimer();
+        restTimeRemaining.setValue(0);
+        timerRunning.setValue(false);
+        timerVisible.setValue(false);
+        timerPaused.setValue(false);
+    }
+
+    /**
+     * Cancel rest timer (cleanup).
+     */
+    public void cancelRestTimer() {
+        timerManager.cancelTimer();
+        restTimeRemaining.setValue(0);
+        timerRunning.setValue(false);
+        timerVisible.setValue(false);
+        timerPaused.setValue(false);
+    }
+
+    /**
+     * Reset rest complete notification flag.
+     */
+    public void resetRestCompleteNotification() {
+        restCompleteNotification.setValue(false);
+    }
+
+    // Rest timer getters
+    public LiveData<Integer> getRestTimeRemaining() {
+        return restTimeRemaining;
+    }
+
+    public LiveData<Boolean> isTimerRunning() {
+        return timerRunning;
+    }
+
+    public LiveData<Boolean> isTimerVisible() {
+        return timerVisible;
+    }
+
+    public LiveData<Boolean> isTimerPaused() {
+        return timerPaused;
+    }
+
+    public LiveData<Boolean> getRestCompleteNotification() {
+        return restCompleteNotification;
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        // Clean up timer when ViewModel is cleared
+        timerManager.cancelTimer();
     }
 }
