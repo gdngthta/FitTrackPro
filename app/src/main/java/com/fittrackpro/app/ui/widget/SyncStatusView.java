@@ -42,25 +42,25 @@ public class SyncStatusView extends LinearLayout {
         switch (status) {
             case SYNCED:
                 iconSync.setImageResource(android.R.drawable.ic_menu_upload_you_tube); // Placeholder
-                textStatus.setText("All synced");
+                textStatus.setText(R.string.sync_status_synced);
                 textStatus.setTextColor(getContext().getColor(android.R.color.holo_green_dark));
                 setVisibility(View.VISIBLE);
                 break;
             case SYNCING:
                 iconSync.setImageResource(android.R.drawable.ic_popup_sync); // Placeholder
-                textStatus.setText("Syncing...");
+                textStatus.setText(R.string.sync_status_syncing);
                 textStatus.setTextColor(getContext().getColor(android.R.color.darker_gray));
                 setVisibility(View.VISIBLE);
                 break;
             case OFFLINE:
                 iconSync.setImageResource(android.R.drawable.ic_dialog_alert); // Placeholder
-                textStatus.setText("Offline - will sync later");
+                textStatus.setText(R.string.sync_status_offline);
                 textStatus.setTextColor(getContext().getColor(android.R.color.darker_gray));
                 setVisibility(View.VISIBLE);
                 break;
             case ERROR:
                 iconSync.setImageResource(android.R.drawable.stat_notify_error); // Placeholder
-                textStatus.setText("Sync error");
+                textStatus.setText(R.string.sync_status_error);
                 textStatus.setTextColor(getContext().getColor(android.R.color.holo_red_dark));
                 setVisibility(View.VISIBLE);
                 break;

@@ -203,7 +203,7 @@ public class DataSyncWorker extends Worker {
                 record.setSynced(true);
                 record.setLastSyncAttempt(System.currentTimeMillis());
                 record.setSyncError(null);
-                dao.insertRecord(record);
+                dao.insertRecord(record); // Using insert with REPLACE conflict strategy
 
                 Log.d(TAG, "Successfully synced PR: " + record.getRecordId());
 
@@ -212,7 +212,7 @@ public class DataSyncWorker extends Worker {
                 record.setSyncAttempts(record.getSyncAttempts() + 1);
                 record.setLastSyncAttempt(System.currentTimeMillis());
                 record.setSyncError(e.getMessage());
-                dao.insertRecord(record);
+                dao.insertRecord(record); // Using insert with REPLACE conflict strategy
             }
         }
     }
