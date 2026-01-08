@@ -43,6 +43,12 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <!-- Emerald Green Theme (for celebration/success) -->
+    <color name="emerald_green">#10B981</color>
+    <color name="emerald_light">#34D399</color>
+    <color name="emerald_dark">#059669</color>
+    <color name="md_theme_dark_onPrimary">#FFFFFF</color>
+
         <!-- Dark Theme Colors -->
         <color name="md_theme_primary_dark">#D0BCFF</color>
         <color name="md_theme_onPrimary_dark">#381E72</color>

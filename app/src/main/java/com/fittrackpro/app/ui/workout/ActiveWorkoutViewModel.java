@@ -180,4 +180,20 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
     public LiveData<Integer> getCompletedSets() {
         return completedSets;
     }
+
+    public LiveData<String> getUserId() {
+        return userId;
+    }
+
+    public LiveData<String> getProgramId() {
+        return programId;
+    }
+
+    public LiveData<String> getDayId() {
+        return dayId;
+    }
+
+    public LiveData<String> getWorkoutName() {
+        return workoutName;
+    }
 }

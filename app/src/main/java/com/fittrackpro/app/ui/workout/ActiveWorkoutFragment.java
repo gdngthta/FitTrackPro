@@ -15,6 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fittrackpro.app.databinding.FragmentActiveWorkoutBinding;
 import com.fittrackpro. app.ui.workout.adapter. ActiveExerciseAdapter;
+import com.fittrackpro.app.R;
+import com.fittrackpro.app.data.model.WorkoutSet;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ActiveWorkoutFragment displays active workout with chronometer and exercise logging.
@@ -107,15 +112,24 @@ public class ActiveWorkoutFragment extends Fragment {
         binding.buttonFinishWorkout.setOnClickListener(v -> {
             binding.chronometer.stop();
 
-            viewModel.finishWorkout().observe(getViewLifecycleOwner(), success -> {
-                if (success != null && success) {
-                    Toast.makeText(requireContext(), "Workout saved!", Toast.LENGTH_SHORT).show();
-                    // Navigate to workout summary
-                    Navigation.findNavController(v).navigateUp();
-                } else {
-                    Toast.makeText(requireContext(), "Failed to save workout", Toast.LENGTH_SHORT).show();
-                }
-            });
+            // Prepare workout data for summary
+            Bundle args = new Bundle();
+            args.putString("userId", viewModel.getUserId().getValue());
+            args.putString("programId", viewModel.getProgramId().getValue());
+            args.putString("dayId", viewModel.getDayId().getValue());
+            args.putString("workoutName", viewModel.getWorkoutName().getValue());
+            args.putLong("startTime", viewModel.getStartTime().getValue() != null ? 
+                viewModel.getStartTime().getValue() : System.currentTimeMillis());
+            args.putLong("endTime", System.currentTimeMillis());
+            
+            // Pass workout sets
+            List<WorkoutSet> sets = viewModel.getWorkoutSets().getValue();
+            if (sets != null) {
+                args.putSerializable("sets", new ArrayList<>(sets));
+            }
+
+            // Navigate to summary
+            Navigation.findNavController(v).navigate(R.id.action_activeWorkout_to_summary, args);
         });
     }
 
