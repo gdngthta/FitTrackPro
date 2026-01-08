@@ -57,11 +57,24 @@ public class ProfileViewModel extends AndroidViewModel {
     }
 
     public LiveData<Boolean> updateDisplayName(String displayName) {
-        String currentUserId = userId. getValue();
+        String currentUserId = userId.getValue();
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
         if (currentUserId != null) {
-            return userRepository.updateDisplayName(currentUserId, displayName);
+            userRepository.updateDisplayName(currentUserId, displayName, new UserRepository.OnCompleteListener() {
+                @Override
+                public void onSuccess() {
+                    result.postValue(true);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    result.postValue(false);
+                }
+            });
+        } else {
+            result.setValue(false);
         }
-        return new MutableLiveData<>(false);
+        return result;
     }
 
     public LiveData<User> getUser() {

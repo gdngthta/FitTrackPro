@@ -119,31 +119,25 @@ public class WorkoutHubFragment extends Fragment {
                     "Difficulty: " + program.getDifficulty() + "\n" +
                     "Duration: " + program.getDurationWeeks() + " weeks\n" +
                     "Days per week: " + program.getDaysPerWeek())
-            .setPositiveButton(R.string.start_workout, (dialog, which) -> {
-                viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
-                    if (newProgramId != null) {
-                        navigateToWorkoutDaySelection(newProgramId, program.getProgramName());
-                    }
-                });
-            })
-            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok, null)
             .show();
     }
 
     private void navigateToWorkoutDaySelection(String programId, String programName) {
-        Bundle args = new Bundle();
-        args.putString("programId", programId);
-        args.putString("programName", programName);
+        // TODO: Navigate to day selection when the destination exists
+        // For now, navigate to active workout directly
         Navigation.findNavController(binding.getRoot())
-            .navigate(R.id.action_workoutHub_to_daySelection, args);
+            .navigate(R.id.action_to_activeWorkout);
     }
 
     private void navigateToProgramEditor(String programId) {
+        // TODO: Navigate to program editor when the destination exists
+        // For now, navigate to edit workout day
         Bundle args = new Bundle();
         args.putString("programId", programId);
-        args.putBoolean("editMode", true);
+        args.putInt("daysPerWeek", 4);
         Navigation.findNavController(binding.getRoot())
-            .navigate(R.id.action_workoutHub_to_editProgram, args);
+            .navigate(R.id.editWorkoutDayFragment, args);
     }
 
     @Override
