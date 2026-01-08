@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/dashboardFragment">
+
+    <!-- Main Bottom Nav Destinations -->
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.fittrackpro.app.ui.dashboard.DashboardFragment"
+        android:label="@string/dashboard" />
+
+    <fragment
+        android:id="@+id/workoutHubFragment"
+        android:name="com.fittrackpro.app.ui.workout.WorkoutHubFragment"
+        android:label="@string/workout">
+
+        <action
+            android:id="@+id/action_to_addRoutine"
+            app:destination="@id/addRoutineFragment" />
+
+        <action
+            android:id="@+id/action_to_activeWorkout"
+            app:destination="@id/activeWorkoutFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/dietFragment"
+        android:name="com.fittrackpro.app.ui.diet.DietFragment"
+        android:label="@string/diet">
+
+        <action
+            android:id="@+id/action_to_foodSearch"
+            app:destination="@id/foodSearchFragment" />
+
+        <action
+            android:id="@+id/action_diet_to_setupNutritionProfile"
+            app:destination="@id/setupNutritionProfileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.fittrackpro.app.ui.profile.ProfileFragment"
+        android:label="@string/profile">
+
+        <action
+            android:id="@+id/action_to_personalRecords"
+            app:destination="@id/personalRecordsFragment" />
+
+        <action
+            android:id="@+id/action_to_settings"
+            app:destination="@id/settingsFragment" />
+    </fragment>
+
+    <!-- Workout Flow -->
+    <fragment
+        android:id="@+id/addRoutineFragment"
+        android:name="com.fittrackpro.app.ui.workout.AddRoutineFragment"
+        android:label="@string/add_routine">
+
+        <action
+            android:id="@+id/action_addRoutine_to_presetList"
+            app:destination="@id/presetProgramListFragment" />
+
+        <action
+            android:id="@+id/action_addRoutine_to_createCustom"
+            app:destination="@id/createCustomProgramFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/presetProgramListFragment"
+        android:name="com.fittrackpro.app.ui.workout.PresetProgramListFragment"
+        android:label="@string/preset_programs" />
+
+    <fragment
+        android:id="@+id/createCustomProgramFragment"
+        android:name="com.fittrackpro.app.ui.workout.CreateCustomProgramFragment"
+        android:label="@string/create_custom_program">
+
+        <action
+            android:id="@+id/action_createCustom_to_editWorkoutDays"
+            app:destination="@id/editWorkoutDayFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/editWorkoutDayFragment"
+        android:name="com.fittrackpro.app.ui.workout.EditWorkoutDayFragment"
+        android:label="@string/setup_workout_days">
+
+        <argument
+            android:name="programId"
+            app:argType="string" />
+
+        <argument
+            android:name="daysPerWeek"
+            app:argType="integer"
+            android:defaultValue="4" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/activeWorkoutFragment"
+        android:name="com.fittrackpro.app.ui.workout.ActiveWorkoutFragment"
+        android:label="@string/active_workout">
+
+        <argument
+            android:name="userId"
+            app:argType="string" />
+
+        <argument
+            android:name="programId"
+            app:argType="string" />
+
+        <argument
+            android:name="dayId"
+            app:argType="string" />
+
+        <argument
+            android:name="workoutName"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_activeWorkout_to_summary"
+            app:destination="@id/workoutSummaryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/workoutSummaryFragment"
+        android:name="com.fittrackpro.app.ui.workout.WorkoutSummaryFragment"
+        android:label="@string/workout_summary">
+
+        <argument
+            android:name="durationSeconds"
+            app:argType="long" />
+
+        <argument
+            android:name="totalVolume"
+            app:argType="float" />
+
+        <argument
+            android:name="totalSets"
+            app:argType="integer" />
+
+        <argument
+            android:name="totalExercises"
+            app:argType="integer" />
+
+        <argument
+            android:name="prs"
+            app:argType="string[]"
+            app:nullable="true" />
+    </fragment>
+
+    <!-- Diet Flow -->
+    <fragment
+        android:id="@+id/setupNutritionProfileFragment"
+        android:name="com.fittrackpro.app.ui.diet.SetupNutritionProfileFragment"
+        android:label="@string/setup_nutrition_profile" />
+
+    <fragment
+        android:id="@+id/foodSearchFragment"
+        android:name="com.fittrackpro.app.ui.diet.FoodSearchFragment"
+        android:label="@string/search_food">
+
+        <argument
+            android:name="mealType"
+            app:argType="string" />
+    </fragment>
+
+    <!-- Profile Flow -->
+    <fragment
+        android:id="@+id/personalRecordsFragment"
+        android:name="com.fittrackpro.app.ui.profile.PersonalRecordsFragment"
+        android:label="@string/personal_records" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.fittrackpro.app.ui.profile.SettingsFragment"
+        android:label="@string/settings">
+
+        <action
+            android:id="@+id/action_settings_to_setupNutritionProfile"
+            app:destination="@id/setupNutritionProfileFragment" />
+    </fragment>
+
+    <!-- Social/Leaderboard -->
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="com.fittrackpro.app.ui.social.LeaderboardFragment"
+        android:label="@string/leaderboard" />
+
+</navigation>

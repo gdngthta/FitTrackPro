@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App Name -->
+    <string name="app_name">FitTrack Pro</string>
+
+    <!-- Bottom Navigation -->
+    <string name="dashboard">Dashboard</string>
+    <string name="workout">Workout</string>
+    <string name="diet">Diet</string>
+    <string name="profile">Profile</string>
+
+    <!-- Authentication -->
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="display_name">Display Name</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="create_account">Create Account</string>
+    <string name="dont_have_account">Don\'t have an account?  Sign up</string>
+    <string name="already_have_account">Already have an account? Login</string>
+
+    <!-- Dashboard -->
+    <string name="total_workouts">Total Workouts</string>
+    <string name="current_streak">Current Streak</string>
+    <string name="total_volume">Total Volume</string>
+    <string name="active_programs">Active Programs</string>
+    <string name="recent_workouts">Recent Workouts</string>
+    <string name="leaderboard_top_3">Top 3 Leaderboard</string>
+    <string name="start_quick_workout">Start Quick Workout</string>
+    <string name="no_workouts_yet">No workouts yet. Start your first one!</string>
+
+    <!-- Workout -->
+    <string name="add_routine">Add Routine</string>
+    <string name="choose_program_type">Choose how to create your program</string>
+    <string name="use_preset_program">Use Preset Program</string>
+    <string name="use_preset_description">Choose from professionally designed programs</string>
+    <string name="create_custom_program">Create Custom Program</string>
+    <string name="create_custom_description">Build your own program from scratch</string>
+    <string name="preset_programs">Preset Programs</string>
+    <string name="program_name">Program Name</string>
+    <string name="description">Description</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="duration">Duration</string>
+    <string name="days_per_week">Days per Week</string>
+    <string name="create_program">Create Program</string>
+    <string name="setup_workout_days">Setup Workout Days</string>
+    <string name="add_workout_day">Add Workout Day</string>
+    <string name="no_workout_days">No workout days yet. Add your first one!</string>
+    <string name="finish_setup">Finish Setup</string>
+    <string name="active_workout">Active Workout</string>
+    <string name="weight_kg">Weight (kg)</string>
+    <string name="reps">Reps</string>
+    <string name="log_set">Log Set</string>
+    <string name="skip">Skip</string>
+    <string name="finish_workout">Finish Workout</string>
+    <string name="sets">Sets</string>
+    <string name="volume">Volume</string>
+    <string name="volume_kg">Volume (kg)</string>
+    <string name="chronometer_format">%s</string>
+    <string name="workout_complete">Workout Complete!</string>
+    <string name="great_work">Great work!  Here\'s your summary</string>
+    <string name="total_sets">Total Sets</string>
+    <string name="exercises">Exercises</string>
+    <string name="workout_summary">Workout Summary</string>
+    <string name="personal_records">Personal Records</string>
+    <string name="view_details">View Details</string>
+
+    <!-- Diet -->
+    <string name="setup_nutrition_profile">Setup Nutrition Profile</string>
+    <string name="nutrition_profile_subtitle">We\'ll calculate your daily targets</string>
+    <string name="height_cm">Height (cm)</string>
+    <string name="age">Age</string>
+    <string name="gender">Gender</string>
+    <string name="activity_level">Activity Level</string>
+    <string name="goal">Goal</string>
+    <string name="calculate_nutrition">Calculate Nutrition</string>
+    <string name="search_food">Search for food... </string>
+    <string name="search_for_food">Start typing to search for food</string>
+    <string name="serving_info">Serving information</string>
+    <string name="portion_multiplier">Portion (e.g., 1.0 = 1 serving)</string>
+    <string name="calories">Calories</string>
+    <string name="protein">Protein</string>
+    <string name="carbs">Carbs</string>
+    <string name="fats">Fats</string>
+    <string name="breakfast">Breakfast</string>
+    <string name="lunch">Lunch</string>
+    <string name="dinner">Dinner</string>
+    <string name="snacks">Snacks</string>
+    <string name="add_food">Add Food</string>
+    <string name="nutrition">Nutrition</string>
+
+    <!-- Profile -->
+    <string name="view_prs">View Personal Records</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="no_prs_yet">No personal records yet. Complete workouts to set PRs!</string>
+    <string name="units">Units</string>
+    <string name="weight_unit">Weight Unit</string>
+    <string name="kilograms">Kilograms (kg)</string>
+    <string name="display">Display</string>
+    <string name="show_equivalence">Show Equivalence</string>
+    <string name="show_equivalence_description">Show real-world comparisons for volume</string>
+    <string name="edit_nutrition_profile">Edit Nutrition Profile</string>
+
+    <!-- Leaderboard -->
+    <string name="leaderboard">Leaderboard</string>
+    <string name="global">Global</string>
+    <string name="friends">Friends</string>
+    <string name="no_leaderboard_data">No leaderboard data available</string>
+
+    <!-- Common -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="search">Search</string>
+    <string name="finish">Finish</string>
+    <string name="loading">Loading...</string>
+
+    <string name="daily_targets">Daily Targets</string>
+    <string name="meals">Meals</string>
+    <string name="no_meals_logged">No meals logged yet</string>
+    <string name="no_programs_yet">No workout programs yet.\nTap + to create your first program!</string>
+
+</resources>

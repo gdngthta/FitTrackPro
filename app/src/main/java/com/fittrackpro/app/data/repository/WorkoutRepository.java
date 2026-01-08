@@ -1,0 +1,658 @@
+package com.fittrackpro.app.data.repository;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.fittrackpro.app.data.local.AppDatabase;
+import com.fittrackpro.app.data.local.dao.CompletedWorkoutDao;
+import com.fittrackpro.app.data.local.dao.PersonalRecordDao;
+import com.fittrackpro.app.data.local.dao.WorkoutProgramDao;
+import com.fittrackpro.app.data.local.entity.CompletedWorkoutEntity;
+import com.fittrackpro.app.data.local.entity.PersonalRecordEntity;
+import com.fittrackpro.app.data.local.entity.WorkoutProgramEntity;
+import com.fittrackpro.app.data.model.CompletedWorkout;
+import com.fittrackpro.app.data.model.PersonalRecord;
+import com.fittrackpro.app.data.model.ProgramExercise;
+import com.fittrackpro.app.data.model.WorkoutDay;
+import com.fittrackpro.app.data.model.WorkoutProgram;
+import com.fittrackpro.app.data.model.WorkoutSet;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+/**
+ * WorkoutRepository manages workout programs, days, exercises, and completed workouts.
+ *
+ * Key responsibilities:
+ * - Fetch preset programs
+ * - Create/duplicate/edit user programs
+ * - Manage workout days and exercises
+ * - Save completed workouts
+ * - Detect and save personal records
+ * - Calculate stats (total volume, workout count, streak)
+ */
+public class WorkoutRepository {
+
+    private final FirebaseFirestore firestore;
+    private final WorkoutProgramDao programDao;
+    private final CompletedWorkoutDao workoutDao;
+    private final PersonalRecordDao recordDao;
+    private final Executor executor;
+
+    public WorkoutRepository(AppDatabase database) {
+        this.firestore = FirebaseFirestore.getInstance();
+        this.programDao = database.workoutProgramDao();
+        this.workoutDao = database.completedWorkoutDao();
+        this.recordDao = database.personalRecordDao();
+        this.executor = Executors.newSingleThreadExecutor();
+    }
+
+    // ==================== WORKOUT PROGRAMS ====================
+
+    /**
+     * Fetch all preset programs from Firestore
+     */
+    public LiveData<List<WorkoutProgram>> getPresetPrograms() {
+        MutableLiveData<List<WorkoutProgram>> result = new MutableLiveData<>();
+
+        firestore.collection("workoutPrograms")
+                .whereEqualTo("isPreset", true)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<WorkoutProgram> programs = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        WorkoutProgram program = doc.toObject(WorkoutProgram.class);
+                        programs.add(program);
+                    }
+                    result.setValue(programs);
+
+                    // Cache in Room
+                    executor.execute(() -> {
+                        List<WorkoutProgramEntity> entities = new ArrayList<>();
+                        for (WorkoutProgram p : programs) {
+                            entities.add(programModelToEntity(p));
+                        }
+                        programDao.insertPrograms(entities);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    result.setValue(new ArrayList<>());
+                });
+
+        return result;
+    }
+
+    /**
+     * Fetch user's active programs
+     */
+    public LiveData<List<WorkoutProgram>> getUserActivePrograms(String userId) {
+        MutableLiveData<List<WorkoutProgram>> result = new MutableLiveData<>();
+
+        firestore.collection("workoutPrograms")
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("isActive", true)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<WorkoutProgram> programs = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        WorkoutProgram program = doc. toObject(WorkoutProgram. class);
+                        programs.add(program);
+                    }
+                    result.setValue(programs);
+
+                    // Cache in Room
+                    executor.execute(() -> {
+                        List<WorkoutProgramEntity> entities = new ArrayList<>();
+                        for (WorkoutProgram p : programs) {
+                            entities.add(programModelToEntity(p));
+                        }
+                        programDao.insertPrograms(entities);
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    result. setValue(new ArrayList<>());
+                });
+
+        return result;
+    }
+
+    /**
+     * Get program by ID
+     */
+    public LiveData<WorkoutProgram> getProgramById(String programId) {
+        MutableLiveData<WorkoutProgram> result = new MutableLiveData<>();
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    WorkoutProgram program = documentSnapshot.toObject(WorkoutProgram.class);
+                    result.setValue(program);
+
+                    if (program != null) {
+                        executor.execute(() -> {
+                            programDao.insertProgram(programModelToEntity(program));
+                        });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    result. setValue(null);
+                });
+
+        return result;
+    }
+
+    /**
+     * Duplicate preset program for user editing
+     */
+    public LiveData<String> duplicatePresetProgram(String presetId, String userId) {
+        MutableLiveData<String> result = new MutableLiveData<>();
+
+        // Fetch preset program
+        firestore.collection("workoutPrograms")
+                .document(presetId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    WorkoutProgram preset = documentSnapshot.toObject(WorkoutProgram.class);
+                    if (preset == null) {
+                        result. setValue(null);
+                        return;
+                    }
+
+                    // Create new program document
+                    String newProgramId = firestore.collection("workoutPrograms").document().getId();
+
+                    WorkoutProgram newProgram = new WorkoutProgram();
+                    newProgram.setProgramId(newProgramId);
+                    newProgram.setUserId(userId);
+                    newProgram.setProgramName(preset.getProgramName() + " (My Copy)");
+                    newProgram. setDescription(preset.getDescription());
+                    newProgram.setDifficulty(preset.getDifficulty());
+                    newProgram. setDurationWeeks(preset.getDurationWeeks());
+                    newProgram.setDaysPerWeek(preset.getDaysPerWeek());
+                    newProgram.setPreset(false);
+                    newProgram.setActive(true);
+                    newProgram.setOriginalPresetId(presetId);
+                    newProgram.setCreatedAt(Timestamp.now());
+                    newProgram.setUpdatedAt(Timestamp.now());
+
+                    // Save new program
+                    firestore.collection("workoutPrograms")
+                            .document(newProgramId)
+                            .set(newProgram)
+                            .addOnSuccessListener(aVoid -> {
+                                // Now duplicate workout days
+                                duplicateWorkoutDays(presetId, newProgramId, result);
+                            })
+                            .addOnFailureListener(e -> result.setValue(null));
+                })
+                .addOnFailureListener(e -> result.setValue(null));
+
+        return result;
+    }
+
+    /**
+     * Helper to duplicate workout days from preset
+     */
+    private void duplicateWorkoutDays(String sourceId, String targetId, MutableLiveData<String> result) {
+        firestore.collection("workoutPrograms")
+                .document(sourceId)
+                .collection("workoutDays")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        result.setValue(targetId);
+                        return;
+                    }
+
+                    int[] counter = {0};
+                    int total = querySnapshot.size();
+
+                    for (QueryDocumentSnapshot dayDoc : querySnapshot) {
+                        WorkoutDay day = dayDoc.toObject(WorkoutDay.class);
+                        String newDayId = firestore.collection("workoutPrograms")
+                                .document(targetId)
+                                .collection("workoutDays")
+                                .document().getId();
+
+                        day.setDayId(newDayId);
+                        day.setProgramId(targetId);
+
+                        firestore.collection("workoutPrograms")
+                                .document(targetId)
+                                .collection("workoutDays")
+                                .document(newDayId)
+                                .set(day)
+                                .addOnSuccessListener(aVoid -> {
+                                    // Duplicate exercises for this day
+                                    duplicateExercises(sourceId, dayDoc.getId(), targetId, newDayId);
+
+                                    counter[0]++;
+                                    if (counter[0] == total) {
+                                        result. setValue(targetId);
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> result.setValue(null));
+    }
+
+    /**
+     * Helper to duplicate exercises
+     */
+    private void duplicateExercises(String sourceProgramId, String sourceDayId,
+                                    String targetProgramId, String targetDayId) {
+        firestore.collection("workoutPrograms")
+                .document(sourceProgramId)
+                .collection("workoutDays")
+                .document(sourceDayId)
+                .collection("programExercises")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (QueryDocumentSnapshot exDoc : querySnapshot) {
+                        ProgramExercise exercise = exDoc.toObject(ProgramExercise.class);
+                        String newExId = firestore.collection("workoutPrograms")
+                                . document(targetProgramId)
+                                .collection("workoutDays")
+                                .document(targetDayId)
+                                . collection("programExercises")
+                                .document().getId();
+
+                        exercise.setExerciseId(newExId);
+                        exercise.setDayId(targetDayId);
+
+                        firestore.collection("workoutPrograms")
+                                .document(targetProgramId)
+                                . collection("workoutDays")
+                                .document(targetDayId)
+                                .collection("programExercises")
+                                .document(newExId)
+                                .set(exercise);
+                    }
+                });
+    }
+
+    /**
+     * Create custom program
+     */
+    public LiveData<String> createCustomProgram(String userId, String programName, String description,
+                                                String difficulty, int durationWeeks, int daysPerWeek) {
+        MutableLiveData<String> result = new MutableLiveData<>();
+
+        String programId = firestore.collection("workoutPrograms").document().getId();
+
+        WorkoutProgram program = new WorkoutProgram();
+        program.setProgramId(programId);
+        program.setUserId(userId);
+        program.setProgramName(programName);
+        program.setDescription(description);
+        program.setDifficulty(difficulty);
+        program.setDurationWeeks(durationWeeks);
+        program.setDaysPerWeek(daysPerWeek);
+        program.setPreset(false);
+        program.setActive(true);
+        program.setCreatedAt(Timestamp.now());
+        program.setUpdatedAt(Timestamp.now());
+
+        firestore. collection("workoutPrograms")
+                .document(programId)
+                .set(program)
+                .addOnSuccessListener(aVoid -> result.setValue(programId))
+                .addOnFailureListener(e -> result.setValue(null));
+
+        return result;
+    }
+
+    // ==================== WORKOUT DAYS ====================
+
+    /**
+     * Get workout days for a program
+     */
+    public LiveData<List<WorkoutDay>> getWorkoutDays(String programId) {
+        MutableLiveData<List<WorkoutDay>> result = new MutableLiveData<>();
+
+        firestore. collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .orderBy("dayNumber")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<WorkoutDay> days = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        WorkoutDay day = doc. toObject(WorkoutDay.class);
+                        days.add(day);
+                    }
+                    result.setValue(days);
+                })
+                .addOnFailureListener(e -> result.setValue(new ArrayList<>()));
+
+        return result;
+    }
+
+    /**
+     * Add workout day to program
+     */
+    public LiveData<Boolean> addWorkoutDay(String programId, String dayName, int dayNumber) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        String dayId = firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document().getId();
+
+        WorkoutDay day = new WorkoutDay();
+        day.setDayId(dayId);
+        day.setProgramId(programId);
+        day.setDayName(dayName);
+        day.setDayNumber(dayNumber);
+        day.setWarmupEnabled(true);
+        day.setCooldownEnabled(true);
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(dayId)
+                .set(day)
+                .addOnSuccessListener(aVoid -> result.setValue(true))
+                .addOnFailureListener(e -> result.setValue(false));
+
+        return result;
+    }
+
+    // ==================== EXERCISES ====================
+
+    /**
+     * Get exercises for a workout day
+     */
+    public LiveData<List<ProgramExercise>> getExercisesForDay(String programId, String dayId) {
+        MutableLiveData<List<ProgramExercise>> result = new MutableLiveData<>();
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(dayId)
+                .collection("programExercises")
+                .orderBy("orderIndex")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<ProgramExercise> exercises = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        ProgramExercise exercise = doc.toObject(ProgramExercise.class);
+                        exercises.add(exercise);
+                    }
+                    result.setValue(exercises);
+                })
+                .addOnFailureListener(e -> result.setValue(new ArrayList<>()));
+
+        return result;
+    }
+
+    /**
+     * Add exercise to workout day
+     */
+    public LiveData<Boolean> addExercise(String programId, String dayId, ProgramExercise exercise) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        String exerciseId = firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(dayId)
+                .collection("programExercises")
+                .document().getId();
+
+        exercise.setExerciseId(exerciseId);
+        exercise.setDayId(dayId);
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(dayId)
+                .collection("programExercises")
+                .document(exerciseId)
+                .set(exercise)
+                .addOnSuccessListener(aVoid -> result.setValue(true))
+                .addOnFailureListener(e -> result.setValue(false));
+
+        return result;
+    }
+
+    // ==================== COMPLETED WORKOUTS ====================
+
+    /**
+     * Save completed workout with sets
+     * This also triggers PR detection
+     */
+    public LiveData<Boolean> saveCompletedWorkout(String userId, CompletedWorkout workout,
+                                                  List<WorkoutSet> sets) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        String workoutId = firestore.collection("completedWorkouts").document().getId();
+        workout.setWorkoutId(workoutId);
+        workout.setUserId(userId);
+        workout.setSynced(true);
+
+        // Save workout document
+        firestore.collection("completedWorkouts")
+                .document(workoutId)
+                .set(workout)
+                .addOnSuccessListener(aVoid -> {
+                    // Save sets as subcollection
+                    saveWorkoutSets(workoutId, sets);
+
+                    // Detect PRs
+                    detectAndSavePersonalRecords(userId, sets);
+
+                    // Cache in Room
+                    executor.execute(() -> {
+                        workoutDao.insertWorkout(workoutModelToEntity(workout));
+                    });
+
+                    result.setValue(true);
+                })
+                .addOnFailureListener(e -> {
+                    // Save to Room with synced = false for later upload
+                    workout.setSynced(false);
+                    executor.execute(() -> {
+                        workoutDao.insertWorkout(workoutModelToEntity(workout));
+                    });
+                    result.setValue(false);
+                });
+
+        return result;
+    }
+
+    /**
+     * Save workout sets as subcollection
+     */
+    private void saveWorkoutSets(String workoutId, List<WorkoutSet> sets) {
+        for (WorkoutSet set : sets) {
+            if (set.getStatus().equals("skipped")) {
+                continue; // Don't save skipped sets
+            }
+
+            String setId = firestore.collection("completedWorkouts")
+                    .document(workoutId)
+                    .collection("workoutSets")
+                    .document().getId();
+
+            set.setSetId(setId);
+            set.setWorkoutId(workoutId);
+
+            firestore.collection("completedWorkouts")
+                    .document(workoutId)
+                    .collection("workoutSets")
+                    .document(setId)
+                    .set(set);
+        }
+    }
+
+    /**
+     * Detect personal records from workout sets
+     */
+    private void detectAndSavePersonalRecords(String userId, List<WorkoutSet> sets) {
+        executor.execute(() -> {
+            for (WorkoutSet set : sets) {
+                if (! set.getStatus().equals("completed") && !set.getStatus().equals("modified")) {
+                    continue;
+                }
+
+                String exerciseName = set.getExerciseName();
+                double weight = set.getWeight();
+                int reps = set.getReps();
+                double volume = weight * reps;
+
+                // Check weight PR
+                PersonalRecordEntity weightPR = recordDao.getBestRecord(userId, exerciseName, "weight");
+                if (weightPR == null || weight > weightPR.getValue()) {
+                    savePersonalRecord(userId, exerciseName, "weight", weight, reps);
+                }
+
+                // Check rep PR (at same weight)
+                PersonalRecordEntity repPR = recordDao. getBestRecord(userId, exerciseName, "reps");
+                if (repPR == null || (weight == repPR.getValue() && reps > repPR.getReps())) {
+                    savePersonalRecord(userId, exerciseName, "reps", weight, reps);
+                }
+
+                // Check volume PR (single set)
+                PersonalRecordEntity volumePR = recordDao.getBestRecord(userId, exerciseName, "volume");
+                if (volumePR == null || volume > volumePR.getValue()) {
+                    savePersonalRecord(userId, exerciseName, "volume", volume, reps);
+                }
+            }
+        });
+    }
+
+    /**
+     * Save personal record
+     */
+    private void savePersonalRecord(String userId, String exerciseName, String recordType,
+                                    double value, int reps) {
+        String recordId = firestore.collection("personalRecords").document().getId();
+
+        PersonalRecord record = new PersonalRecord();
+        record.setRecordId(recordId);
+        record.setUserId(userId);
+        record.setExerciseName(exerciseName);
+        record.setRecordType(recordType);
+        record.setValue(value);
+        record.setReps(reps);
+        record.setAchievedAt(Timestamp.now());
+
+        firestore.collection("personalRecords")
+                .document(recordId)
+                .set(record)
+                .addOnSuccessListener(aVoid -> {
+                    executor.execute(() -> {
+                        recordDao.insertRecord(recordModelToEntity(record));
+                    });
+                });
+    }
+
+    /**
+     * Get recent workouts
+     */
+    public LiveData<List<CompletedWorkout>> getRecentWorkouts(String userId, int limit) {
+        MutableLiveData<List<CompletedWorkout>> result = new MutableLiveData<>();
+
+        firestore.collection("completedWorkouts")
+                .whereEqualTo("userId", userId)
+                .orderBy("startTime", Query.Direction.DESCENDING)
+                .limit(limit)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<CompletedWorkout> workouts = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        CompletedWorkout workout = doc.toObject(CompletedWorkout.class);
+                        workouts.add(workout);
+                    }
+                    result.setValue(workouts);
+
+                    // Cache in Room
+                    executor.execute(() -> {
+                        for (CompletedWorkout w : workouts) {
+                            workoutDao.insertWorkout(workoutModelToEntity(w));
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> result.setValue(new ArrayList<>()));
+
+        return result;
+    }
+
+    /**
+     * Get personal records for user
+     */
+    public LiveData<List<PersonalRecord>> getPersonalRecords(String userId) {
+        MutableLiveData<List<PersonalRecord>> result = new MutableLiveData<>();
+
+        firestore.collection("personalRecords")
+                .whereEqualTo("userId", userId)
+                .orderBy("achievedAt", Query.Direction. DESCENDING)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<PersonalRecord> records = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        PersonalRecord record = doc.toObject(PersonalRecord.class);
+                        records. add(record);
+                    }
+                    result.setValue(records);
+                })
+                .addOnFailureListener(e -> result.setValue(new ArrayList<>()));
+
+        return result;
+    }
+
+    // ==================== CONVERSION HELPERS ====================
+
+    private WorkoutProgramEntity programModelToEntity(WorkoutProgram program) {
+        WorkoutProgramEntity entity = new WorkoutProgramEntity();
+        entity.setProgramId(program.getProgramId());
+        entity.setUserId(program.getUserId());
+        entity.setProgramName(program.getProgramName());
+        entity.setDescription(program.getDescription());
+        entity.setDifficulty(program.getDifficulty());
+        entity.setDurationWeeks(program.getDurationWeeks());
+        entity.setDaysPerWeek(program.getDaysPerWeek());
+        entity.setPreset(program.isPreset());
+        entity.setActive(program.isActive());
+        entity.setOriginalPresetId(program.getOriginalPresetId());
+        entity.setCreatedAt(program.getCreatedAt() != null ? program.getCreatedAt().toDate().getTime() : 0);
+        entity.setUpdatedAt(program.getUpdatedAt() != null ? program.getUpdatedAt().toDate().getTime() : 0);
+        return entity;
+    }
+
+    private CompletedWorkoutEntity workoutModelToEntity(CompletedWorkout workout) {
+        CompletedWorkoutEntity entity = new CompletedWorkoutEntity();
+        entity.setWorkoutId(workout. getWorkoutId());
+        entity.setUserId(workout.getUserId());
+        entity.setProgramId(workout.getProgramId());
+        entity.setDayId(workout.getDayId());
+        entity.setWorkoutName(workout.getWorkoutName());
+        entity.setStartTime(workout.getStartTime() != null ? workout.getStartTime().toDate().getTime() : 0);
+        entity.setEndTime(workout.getEndTime() != null ? workout.getEndTime().toDate().getTime() : 0);
+        entity.setDurationSeconds(workout.getDurationSeconds());
+        entity.setTotalVolume(workout.getTotalVolume());
+        entity.setTotalSets(workout.getTotalSets());
+        entity.setTotalExercises(workout.getTotalExercises());
+        entity.setSynced(workout.isSynced());
+        return entity;
+    }
+
+    private PersonalRecordEntity recordModelToEntity(PersonalRecord record) {
+        PersonalRecordEntity entity = new PersonalRecordEntity();
+        entity.setRecordId(record.getRecordId());
+        entity.setUserId(record.getUserId());
+        entity.setExerciseName(record.getExerciseName());
+        entity.setRecordType(record.getRecordType());
+        entity.setValue(record.getValue());
+        entity.setReps(record.getReps());
+        entity.setAchievedAt(record.getAchievedAt() != null ? record.getAchievedAt().toDate().getTime() : 0);
+        return entity;
+    }
+}
