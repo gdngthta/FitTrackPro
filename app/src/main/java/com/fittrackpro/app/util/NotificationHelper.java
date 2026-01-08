@@ -70,7 +70,6 @@ public class NotificationHelper {
             }
         } catch (Exception e) {
             // Silently fail if sound cannot be played
-            e.printStackTrace();
         }
     }
 

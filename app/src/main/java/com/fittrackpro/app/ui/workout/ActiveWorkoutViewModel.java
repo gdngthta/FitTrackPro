@@ -53,6 +53,7 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
 
     // Rest timer state
     private final MutableLiveData<Integer> restTimeRemaining = new MutableLiveData<>(0);
+    private final MutableLiveData<Integer> restTimerTotal = new MutableLiveData<>(0);
     private final MutableLiveData<Boolean> timerRunning = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> timerVisible = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> timerPaused = new MutableLiveData<>(false);
@@ -210,6 +211,7 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
             @Override
             public void onFinish() {
                 restTimeRemaining.postValue(0);
+                restTimerTotal.postValue(0);
                 timerRunning.postValue(false);
                 timerVisible.postValue(false);
                 timerPaused.postValue(false);
@@ -217,6 +219,7 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
                 restCompleteNotification.postValue(true);
             }
         });
+        restTimerTotal.setValue(seconds);
         timerRunning.setValue(true);
         timerVisible.setValue(true);
         timerPaused.setValue(false);
@@ -267,6 +270,10 @@ public class ActiveWorkoutViewModel extends AndroidViewModel {
     // Rest timer getters
     public LiveData<Integer> getRestTimeRemaining() {
         return restTimeRemaining;
+    }
+
+    public LiveData<Integer> getRestTimerTotal() {
+        return restTimerTotal;
     }
 
     public LiveData<Boolean> isTimerRunning() {

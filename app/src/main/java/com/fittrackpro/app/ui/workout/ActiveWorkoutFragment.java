@@ -123,10 +123,12 @@ public class ActiveWorkoutFragment extends Fragment {
             if (seconds != null) {
                 binding.textRestCountdown.setText(formatTime(seconds));
                 
-                // Update circular progress
-                int totalSeconds = Constants.DEFAULT_REST_TIMER_SECONDS;
-                int progress = (int) ((seconds / (float) totalSeconds) * 100);
-                binding.progressRestTimer.setProgress(progress);
+                // Update circular progress using actual total duration
+                Integer totalSeconds = viewModel.getRestTimerTotal().getValue();
+                if (totalSeconds != null && totalSeconds > 0) {
+                    int progress = (int) ((seconds / (float) totalSeconds) * 100);
+                    binding.progressRestTimer.setProgress(progress);
+                }
             }
         });
 
