@@ -1,6 +1,8 @@
 package com.fittrackpro.app.data.model;
 
-public class WorkoutSet {
+import java.io.Serializable;
+
+public class WorkoutSet implements Serializable {
     private String setId;
     private String workoutId;
     private String exerciseName;

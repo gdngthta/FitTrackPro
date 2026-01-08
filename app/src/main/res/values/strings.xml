@@ -55,10 +55,6 @@
     <string name="reps">Reps</string>
     <string name="log_set">Log Set</string>
     <string name="skip">Skip</string>
-    <string name="skip_rest">Skip Rest</string>
-    <string name="pause">Pause</string>
-    <string name="resume">Resume</string>
-    <string name="rest_time">Rest Time</string>
     <string name="finish_workout">Finish Workout</string>
     <string name="sets">Sets</string>
     <string name="volume">Volume</string>
@@ -130,12 +126,18 @@
     <string name="no_meals_logged">No meals logged yet</string>
     <string name="no_programs_yet">No workout programs yet.\nTap + to create your first program!</string>
 
-    <!-- Sync Status -->
-    <string name="sync_status">Sync Status</string>
-    <string name="sync_status_icon">Sync status icon</string>
-    <string name="sync_status_synced">All synced</string>
-    <string name="sync_status_syncing">Syncing...</string>
-    <string name="sync_status_offline">Offline - will sync later</string>
-    <string name="sync_status_error">Sync error</string>
+    <!-- Workout Summary -->
+    <string name="congratulations">Congratulations!</string>
+    <string name="workout_complete_message">Great job! You\'re getting stronger!</string>
+    <string name="new_personal_records">New Personal Records!</string>
+    <string name="exercise_breakdown">Exercise Breakdown</string>
+    <string name="share_workout">Share Workout</string>
+    <string name="done">Done</string>
+    <string name="previous">Previous</string>
+    <string name="weight_pr">Weight PR</string>
+    <string name="rep_pr">Rep PR</string>
+    <string name="volume_pr">Volume PR</string>
+    <string name="set_format">Set %1$d: %2$.1f kg × %3$d reps</string>
+    <string name="total_format">Total: %1$.1f kg</string>
 
 </resources>
