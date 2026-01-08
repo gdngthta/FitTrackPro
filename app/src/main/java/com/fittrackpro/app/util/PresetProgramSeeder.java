@@ -27,6 +27,10 @@ public class PresetProgramSeeder {
     /**
      * Seed all preset programs to Firestore.
      * Checks if programs already exist to avoid duplicates.
+     * 
+     * Note: For optimal performance, ensure a Firestore index exists on the
+     * 'isPreset' field in the workoutPrograms collection. Firebase will
+     * typically create this automatically on first query.
      */
     public static void seedPresetPrograms(OnSeedCompleteListener listener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -54,15 +58,19 @@ public class PresetProgramSeeder {
     
     private static void seedAllPrograms(FirebaseFirestore db, OnSeedCompleteListener listener) {
         try {
-            // Seed all programs
+            // Seed all programs - these are asynchronous operations
+            // that will complete in the background
             seedBeginnerPrograms(db);
             seedIntermediatePrograms(db);
             seedAdvancedPrograms(db);
             
-            Log.d(TAG, "Successfully seeded 9 preset programs");
-            listener.onComplete(true, "Seeded 9 preset programs");
+            // Note: The actual Firestore writes are asynchronous and will complete
+            // in the background. The listener is called to indicate seeding has been
+            // initiated. The SharedPreferences flag prevents duplicate seeding attempts.
+            Log.d(TAG, "Initiated seeding of 9 preset programs");
+            listener.onComplete(true, "Seeding initiated for 9 preset programs");
         } catch (Exception e) {
-            Log.e(TAG, "Error seeding programs", e);
+            Log.e(TAG, "Error initiating program seeding", e);
             listener.onComplete(false, "Error: " + e.getMessage());
         }
     }
@@ -506,6 +514,7 @@ public class PresetProgramSeeder {
         exercise.setTargetSets(exData.sets);
         exercise.setTargetRepsMin(exData.repsMin);
         exercise.setTargetRepsMax(exData.repsMax);
+        exercise.setRestSeconds(exData.restSeconds); // Add rest seconds
         exercise.setOrderIndex(exData.orderIndex);
         exercise.setNotes(exData.notes);
         
