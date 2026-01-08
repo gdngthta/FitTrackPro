@@ -126,4 +126,8 @@
     <string name="no_meals_logged">No meals logged yet</string>
     <string name="no_programs_yet">No workout programs yet.\nTap + to create your first program!</string>
 
+    <!-- Sync Status -->
+    <string name="sync_status">Sync Status</string>
+    <string name="sync_status_icon">Sync status icon</string>
+
 </resources>
