@@ -10,6 +10,7 @@ public class ProgramExercise {
     private int targetSets;
     private int targetRepsMin;
     private int targetRepsMax;
+    private int restSeconds; // rest time between sets in seconds
     private String notes; // form cues, etc.
 
     public ProgramExercise() {
@@ -43,6 +44,9 @@ public class ProgramExercise {
 
     public int getTargetRepsMax() { return targetRepsMax; }
     public void setTargetRepsMax(int targetRepsMax) { this.targetRepsMax = targetRepsMax; }
+
+    public int getRestSeconds() { return restSeconds; }
+    public void setRestSeconds(int restSeconds) { this.restSeconds = restSeconds; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }

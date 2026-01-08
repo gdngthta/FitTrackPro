@@ -77,4 +77,15 @@ public class Constants {
     public static final int MIN_USERNAME_LENGTH = 3;
     public static final int MAX_USERNAME_LENGTH = 20;
     public static final int MIN_PASSWORD_LENGTH = 6;
+
+    // Preset program IDs
+    public static final String PRESET_STARTING_STRENGTH = "preset_starting_strength";
+    public static final String PRESET_FULL_BODY = "preset_full_body";
+    public static final String PRESET_BODYWEIGHT = "preset_bodyweight";
+    public static final String PRESET_PPL = "preset_ppl";
+    public static final String PRESET_UPPER_LOWER = "preset_upper_lower";
+    public static final String PRESET_PHAT = "preset_phat";
+    public static final String PRESET_531_WENDLER = "preset_531_wendler";
+    public static final String PRESET_GVT = "preset_gvt";
+    public static final String PRESET_ARNOLD = "preset_arnold";
 }
