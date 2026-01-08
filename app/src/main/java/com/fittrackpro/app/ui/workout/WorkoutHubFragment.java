@@ -25,8 +25,8 @@ public class WorkoutHubFragment extends Fragment {
 
     private FragmentWorkoutHubBinding binding;
     private WorkoutHubViewModel viewModel;
-    private WorkoutProgramAdapter presetAdapter;
-    private WorkoutProgramAdapter userAdapter;
+    private WorkoutProgramAdapter programAdapter;
+    private boolean showingAllPrograms = false;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -51,57 +51,52 @@ public class WorkoutHubFragment extends Fragment {
     }
 
     private void setupRecyclerViews() {
-        // Preset programs
-        presetAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
+        // Single adapter that can show either active or all programs
+        programAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
-                // IMPLEMENTED: Navigate to program preview
-                showProgramPreviewDialog(program);
+                // Show program preview for presets, navigate to editor for user programs
+                if (program.isPreset()) {
+                    showProgramPreviewDialog(program);
+                } else {
+                    navigateToProgramEditor(program.getProgramId());
+                }
             }
 
             @Override
             public void onStartWorkoutClick(WorkoutProgram program) {
-                // Duplicate preset and start
-                viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
-                    if (newProgramId != null) {
-                        // IMPLEMENTED: Navigate to workout day selection
-                        navigateToWorkoutDaySelection(newProgramId, program.getProgramName());
-                    }
-                });
+                if (program.isPreset()) {
+                    // Duplicate preset and start
+                    viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
+                        if (newProgramId != null) {
+                            navigateToWorkoutDaySelection(newProgramId, program.getProgramName());
+                        }
+                    });
+                } else {
+                    // Start user program directly
+                    navigateToWorkoutDaySelection(program.getProgramId(), program.getProgramName());
+                }
             }
         });
-        binding.recyclerPresetPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerPresetPrograms.setAdapter(presetAdapter);
-
-        // User programs
-        userAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
-            @Override
-            public void onProgramClick(WorkoutProgram program) {
-                // IMPLEMENTED: Navigate to program editor
-                navigateToProgramEditor(program.getProgramId());
-            }
-
-            @Override
-            public void onStartWorkoutClick(WorkoutProgram program) {
-                // IMPLEMENTED: Navigate to workout day selection
-                navigateToWorkoutDaySelection(program.getProgramId(), program.getProgramName());
-            }
-        });
-        binding.recyclerUserPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerUserPrograms.setAdapter(userAdapter);
+        binding.recyclerPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerPrograms.setAdapter(programAdapter);
     }
 
     private void setupObservers() {
-        viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
-            if (programs != null) {
-                presetAdapter.submitList(programs);
+        // Observe based on current tab
+        viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
+            if (programs != null && !showingAllPrograms) {
+                programAdapter.submitList(programs);
+                binding.emptyState.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.recyclerPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
-
-        viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
-            if (programs != null) {
-                userAdapter.submitList(programs);
-                binding.emptyStateUserPrograms.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
+        
+        viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
+            if (programs != null && showingAllPrograms) {
+                programAdapter.submitList(programs);
+                binding.emptyState.setVisibility(View.GONE);
+                binding.recyclerPrograms.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -109,6 +104,41 @@ public class WorkoutHubFragment extends Fragment {
     private void setupListeners() {
         binding.fabAddRoutine.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
+        });
+        
+        binding.buttonAddFirstProgram.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
+        });
+        
+        // Tab selection
+        binding.tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
+                showingAllPrograms = tab.getPosition() == 1;
+                if (showingAllPrograms) {
+                    viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
+                        if (programs != null) {
+                            programAdapter.submitList(programs);
+                            binding.emptyState.setVisibility(View.GONE);
+                            binding.recyclerPrograms.setVisibility(View.VISIBLE);
+                        }
+                    });
+                } else {
+                    viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
+                        if (programs != null) {
+                            programAdapter.submitList(programs);
+                            binding.emptyState.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
+                            binding.recyclerPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
         });
     }
 

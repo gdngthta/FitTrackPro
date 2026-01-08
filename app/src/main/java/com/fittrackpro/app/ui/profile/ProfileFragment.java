@@ -60,19 +60,11 @@ public class ProfileFragment extends Fragment {
             if (user != null) {
                 binding.textDisplayName.setText(user.getDisplayName());
                 binding.textUsername.setText("@" + user.getUsername());
-                binding.textEmail.setText(user.getEmail());
 
                 // Stats
-                binding.textStatWorkouts.setText(String.valueOf(user.getTotalWorkouts()));
-                binding.textStatStreak.setText(user.getCurrentStreak() + " days");
-                binding. textStatVolume.setText(String.format("%.1f kg", user.getTotalVolumeLifted()));
-                binding.textStatPrograms.setText(String.valueOf(user.getActivePrograms()));
-            }
-        });
-
-        viewModel.getPersonalRecords().observe(getViewLifecycleOwner(), records -> {
-            if (records != null) {
-                binding.textPrCount.setText(records.size() + " PRs");
+                binding.textTotalWorkouts.setText(String.valueOf(user.getTotalWorkouts()));
+                binding.textStreak.setText(String.valueOf(user.getCurrentStreak()));
+                binding.textTotalVolume.setText(String.format("%.1fK", user.getTotalVolumeLifted() / 1000));
             }
         });
     }

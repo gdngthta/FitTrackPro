@@ -50,24 +50,18 @@ public class DietFragment extends Fragment {
 
     private void setupRecyclerView() {
         mealAdapter = new MealAdapter();
-        binding.recyclerMeals.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerMeals. setAdapter(mealAdapter);
+        // Use individual recycler views for each meal type instead of one combined
     }
 
     private void setupObservers() {
-        // Nutrition profile
+        // Nutrition profile - show/hide setup button
         viewModel.getNutritionProfile().observe(getViewLifecycleOwner(), profile -> {
             if (profile != null) {
-                binding.layoutNutritionSetup.setVisibility(View. GONE);
-                binding.layoutNutritionDashboard.setVisibility(View. VISIBLE);
-
-                binding.textTargetCalories.setText(String.format("%. 0f", profile.getTargetCalories()));
-                binding. textTargetProtein.setText(String.format("%.0fg", profile.getTargetProtein()));
-                binding.textTargetCarbs.setText(String.format("%.0fg", profile.getTargetCarbs()));
-                binding.textTargetFats.setText(String.format("%. 0fg", profile.getTargetFats()));
+                binding.buttonSetupNutrition.setVisibility(View.GONE);
+                binding.scrollContent.setVisibility(View.VISIBLE);
             } else {
-                binding.layoutNutritionSetup.setVisibility(View.VISIBLE);
-                binding.layoutNutritionDashboard.setVisibility(View.GONE);
+                binding.buttonSetupNutrition.setVisibility(View.VISIBLE);
+                binding.scrollContent.setVisibility(View.GONE);
             }
         });
 
@@ -78,37 +72,41 @@ public class DietFragment extends Fragment {
             }
         });
 
-        // Today's totals
+        // Today's totals - Update progress indicators
         viewModel.getTodayCalories().observe(getViewLifecycleOwner(), calories -> {
-            binding.textCurrentCalories.setText(String.format("%.0f", calories != null ? calories : 0.0));
-            updateProgress(binding.progressCalories, calories,
-                    viewModel.getNutritionProfile().getValue() != null ?
-                            viewModel.getNutritionProfile().getValue().getTargetCalories() : 2000);
+            double target = viewModel.getNutritionProfile().getValue() != null ?
+                    viewModel.getNutritionProfile().getValue().getTargetCalories() : 2000;
+            binding.textCaloriesProgress.setText(String.format("%.0f / %.0f kcal", 
+                    calories != null ? calories : 0.0, target));
+            updateProgress(binding.progressCalories, calories, target);
         });
 
         viewModel.getTodayProtein().observe(getViewLifecycleOwner(), protein -> {
-            binding.textCurrentProtein.setText(String.format("%. 0fg", protein != null ? protein : 0.0));
-            updateProgress(binding.progressProtein, protein,
-                    viewModel.getNutritionProfile().getValue() != null ?
-                            viewModel.getNutritionProfile().getValue().getTargetProtein() : 150);
+            double target = viewModel.getNutritionProfile().getValue() != null ?
+                    viewModel.getNutritionProfile().getValue().getTargetProtein() : 150;
+            binding.textProteinProgress.setText(String.format("%.0f / %.0f g", 
+                    protein != null ? protein : 0.0, target));
+            updateProgress(binding.progressProtein, protein, target);
         });
 
         viewModel.getTodayCarbs().observe(getViewLifecycleOwner(), carbs -> {
-            binding.textCurrentCarbs.setText(String.format("%. 0fg", carbs != null ?  carbs : 0.0));
-            updateProgress(binding.progressCarbs, carbs,
-                    viewModel.getNutritionProfile().getValue() != null ?
-                            viewModel.getNutritionProfile().getValue().getTargetCarbs() : 200);
+            double target = viewModel.getNutritionProfile().getValue() != null ?
+                    viewModel.getNutritionProfile().getValue().getTargetCarbs() : 200;
+            binding.textCarbsProgress.setText(String.format("%.0f / %.0f g", 
+                    carbs != null ? carbs : 0.0, target));
+            updateProgress(binding.progressCarbs, carbs, target);
         });
 
         viewModel.getTodayFats().observe(getViewLifecycleOwner(), fats -> {
-            binding.textCurrentFats.setText(String.format("%. 0fg", fats != null ?  fats : 0.0));
-            updateProgress(binding.progressFats, fats,
-                    viewModel.getNutritionProfile().getValue() != null ?
-                            viewModel.getNutritionProfile().getValue().getTargetFats() : 65);
+            double target = viewModel.getNutritionProfile().getValue() != null ?
+                    viewModel.getNutritionProfile().getValue().getTargetFats() : 65;
+            binding.textFatsProgress.setText(String.format("%.0f / %.0f g", 
+                    fats != null ? fats : 0.0, target));
+            updateProgress(binding.progressFats, fats, target);
         });
     }
 
-    private void updateProgress(android.widget.ProgressBar progressBar, Double current, double target) {
+    private void updateProgress(com.google.android.material.progressindicator.LinearProgressIndicator progressBar, Double current, double target) {
         if (current != null && target > 0) {
             int progress = (int) ((current / target) * 100);
             progressBar.setProgress(Math.min(progress, 100));
@@ -116,7 +114,7 @@ public class DietFragment extends Fragment {
     }
 
     private void setupListeners() {
-        binding.buttonSetupProfile.setOnClickListener(v -> {
+        binding.buttonSetupNutrition.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_diet_to_setupNutritionProfile);
         });
 
