@@ -1,5 +1,6 @@
 package com.fittrackpro.app.data.repository;
 
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -427,6 +428,7 @@ public class WorkoutRepository {
     /**
      * Save completed workout with sets
      * This also triggers PR detection
+     * Offline-first: saves to Room immediately, then syncs to Firestore
      */
     public LiveData<Boolean> saveCompletedWorkout(String userId, CompletedWorkout workout,
                                                   List<WorkoutSet> sets) {
@@ -435,34 +437,38 @@ public class WorkoutRepository {
         String workoutId = firestore.collection("completedWorkouts").document().getId();
         workout.setWorkoutId(workoutId);
         workout.setUserId(userId);
-        workout.setSynced(true);
+        workout.setSynced(false); // Mark as unsynced initially
 
-        // Save workout document
-        firestore.collection("completedWorkouts")
-                .document(workoutId)
-                .set(workout)
-                .addOnSuccessListener(aVoid -> {
-                    // Save sets as subcollection
-                    saveWorkoutSets(workoutId, sets);
-
-                    // Detect PRs
-                    detectAndSavePersonalRecords(userId, sets);
-
-                    // Cache in Room
-                    executor.execute(() -> {
-                        workoutDao.insertWorkout(workoutModelToEntity(workout));
+        // Save to Room FIRST for instant UI update
+        executor.execute(() -> {
+            workoutDao.insertWorkout(workoutModelToEntity(workout));
+            
+            // Detect PRs from sets
+            detectAndSavePersonalRecords(userId, sets);
+            
+            result.postValue(true); // Immediately return success
+            
+            // Then attempt to sync to Firestore in background
+            firestore.collection("completedWorkouts")
+                    .document(workoutId)
+                    .set(workout)
+                    .addOnSuccessListener(aVoid -> {
+                        // Save sets as subcollection
+                        saveWorkoutSets(workoutId, sets);
+                        
+                        // Mark as synced in Room
+                        workout.setSynced(true);
+                        CompletedWorkoutEntity entity = workoutModelToEntity(workout);
+                        entity.setSynced(true);
+                        entity.setLastSyncAttempt(System.currentTimeMillis());
+                        workoutDao.updateWorkout(entity);
+                    })
+                    .addOnFailureListener(e -> {
+                        // Sync failed, will retry later via SyncWorker
+                        // Data is already in Room, so user doesn't lose it
+                        Log.e("WorkoutRepository", "Failed to sync workout to Firestore", e);
                     });
-
-                    result.setValue(true);
-                })
-                .addOnFailureListener(e -> {
-                    // Save to Room with synced = false for later upload
-                    workout.setSynced(false);
-                    executor.execute(() -> {
-                        workoutDao.insertWorkout(workoutModelToEntity(workout));
-                    });
-                    result.setValue(false);
-                });
+        });
 
         return result;
     }

@@ -22,4 +22,7 @@ public interface FoodDao {
 
     @Delete
     void deleteFood(FoodEntity food);
+
+    @Query("SELECT * FROM foods WHERE synced = 0")
+    List<FoodEntity> getUnsyncedFoods();
 }

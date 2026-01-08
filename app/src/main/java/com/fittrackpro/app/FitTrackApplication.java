@@ -1,56 +1,39 @@
 package com.fittrackpro.app;
 
 import android.app.Application;
-import android.content.SharedPreferences;
-import android.util.Log;
-
-import com.fittrackpro.app.util.Constants;
-import com.fittrackpro.app.util.PresetProgramSeeder;
+import com.fittrackpro.app.sync.SyncManager;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 /**
- * FitTrackApplication - Application class for FitTrack Pro.
- * 
- * Handles one-time initialization tasks:
- * - Seeding preset workout programs to Firestore
+ * Application class for FitTrackPro.
+ * Handles global initialization including Firestore offline persistence.
  */
 public class FitTrackApplication extends Application {
-    
-    private static final String TAG = "FitTrackApp";
-    private static final String PREF_KEY_PRESET_SEEDED = "preset_programs_seeded";
-    
+
     @Override
     public void onCreate() {
         super.onCreate();
-        
-        Log.d(TAG, "FitTrack Application starting...");
-        
-        // Seed preset programs on first launch
-        seedPresetProgramsIfNeeded();
-    }
-    
-    /**
-     * Seeds preset workout programs to Firestore if not already done.
-     * Uses SharedPreferences to track seeding status.
-     */
-    private void seedPresetProgramsIfNeeded() {
-        SharedPreferences prefs = getSharedPreferences(Constants.PREF_NAME, MODE_PRIVATE);
-        boolean alreadySeeded = prefs.getBoolean(PREF_KEY_PRESET_SEEDED, false);
-        
-        if (alreadySeeded) {
-            Log.d(TAG, "Preset programs already seeded, skipping");
-            return;
+
+        // Enable Firestore offline persistence
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+                .build();
+        firestore.setFirestoreSettings(settings);
+
+        // Initialize sync on app start if user is logged in
+        String userId = getCurrentUserId();
+        if (userId != null) {
+            SyncManager.getInstance(this).schedulePeriodicSync(userId);
         }
-        
-        Log.d(TAG, "Starting preset programs seeding...");
-        
-        PresetProgramSeeder.seedPresetPrograms((success, message) -> {
-            if (success) {
-                // Mark as seeded in SharedPreferences
-                prefs.edit().putBoolean(PREF_KEY_PRESET_SEEDED, true).apply();
-                Log.d(TAG, "Preset programs seeded successfully: " + message);
-            } else {
-                Log.e(TAG, "Failed to seed preset programs: " + message);
-            }
-        });
+    }
+
+    private String getCurrentUserId() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        return user != null ? user.getUid() : null;
     }
 }

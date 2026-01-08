@@ -1,71 +1,116 @@
-package com.fittrackpro.app.data. repository;
+package com.fittrackpro.app.data.repository;
 
-import androidx.lifecycle. LiveData;
-import androidx.lifecycle. MutableLiveData;
-import com.fittrackpro. app.data.local.AppDatabase;
+import android.content.Context;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
+import com.fittrackpro.app.data.local.AppDatabase;
 import com.fittrackpro.app.data.local.dao.UserDao;
-import com.fittrackpro. app.data.local.entity. UserEntity;
+import com.fittrackpro.app.data.local.entity.UserEntity;
 import com.fittrackpro.app.data.model.User;
+import com.fittrackpro.app.sync.SyncManager;
+import com.fittrackpro.app.util.Constants;
 import com.google.firebase.Timestamp;
-import com.google.firebase. firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.concurrent. Executor;
-import java.util. concurrent.Executors;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * UserRepository manages user data sync between Firestore and Room.
  *
- * Key responsibilities:
- * - Fetch user data from Firestore
- * - Cache user data in Room
- * - Update user stats (workouts, streak, volume, active programs)
+ * Offline-first: reads from Room immediately, syncs with Firestore in background.
+ * Writes go to Room immediately, then sync to Firestore when online.
  */
 public class UserRepository {
 
     private final FirebaseFirestore firestore;
     private final UserDao userDao;
     private final Executor executor;
+    private final SyncManager syncManager;
 
-    public UserRepository(AppDatabase database) {
+    public UserRepository(AppDatabase database, Context context) {
         this.firestore = FirebaseFirestore.getInstance();
         this.userDao = database.userDao();
         this.executor = Executors.newSingleThreadExecutor();
+        this.syncManager = SyncManager.getInstance(context);
     }
 
     /**
-     * Fetch user data from Firestore and cache in Room
+     * Get user - reads from Room, syncs from Firestore in background
      */
     public LiveData<User> getUser(String userId) {
-        MutableLiveData<User> result = new MutableLiveData<>();
+        // Return Room LiveData immediately for instant UI
+        LiveData<UserEntity> localData = userDao.getUserById(userId);
 
-        // First, try to get from Room cache
-        executor.execute(() -> {
-            UserEntity cachedUser = userDao.getUserByIdSync(userId);
-            if (cachedUser != null) {
-                result.postValue(entityToModel(cachedUser));
-            }
-        });
+        // Fetch from Firestore in background and update Room
+        fetchUserFromFirestore(userId);
 
-        // Then fetch from Firestore
-        firestore.collection("users")
+        // Transform Entity to Model
+        return Transformations.map(localData, this::convertToModel);
+    }
+
+    private void fetchUserFromFirestore(String userId) {
+        firestore.collection(Constants.COLLECTION_USERS)
                 .document(userId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    User user = documentSnapshot. toObject(User.class);
-                    if (user != null) {
-                        result.setValue(user);
-
-                        // Cache in Room
-                        executor. execute(() -> {
-                            userDao.insertUser(modelToEntity(user));
-                        });
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            // Update Room with fresh data
+                            UserEntity entity = convertToEntity(user);
+                            entity.setSynced(true);
+                            executor.execute(() -> userDao.insertUser(entity));
+                        }
                     }
-                })
-                .addOnFailureListener(e -> {
-                    // If Firestore fails, rely on cached data
                 });
+    }
 
-        return result;
+    /**
+     * Update user - writes to Room immediately, schedules Firestore sync
+     */
+    public void updateUser(User user) {
+        // Write to Room immediately
+        UserEntity entity = convertToEntity(user);
+        entity.setSynced(false); // Mark as needing sync
+        entity.setUpdatedAt(System.currentTimeMillis());
+        executor.execute(() -> {
+            userDao.updateUser(entity);
+            // Schedule sync
+            syncManager.syncNow(user.getUserId());
+        });
+    }
+
+    /**
+     * Update user display name
+     */
+    public void updateDisplayName(String userId, String displayName, OnCompleteListener listener) {
+        executor.execute(() -> {
+            UserEntity user = userDao.getUserByIdSync(userId);
+            if (user != null) {
+                user.setDisplayName(displayName);
+                user.setUpdatedAt(System.currentTimeMillis());
+                user.setSynced(false);
+                userDao.updateUser(user);
+
+                // Try to sync to Firestore
+                firestore.collection(Constants.COLLECTION_USERS)
+                        .document(userId)
+                        .update("displayName", displayName, "updatedAt", Timestamp.now())
+                        .addOnSuccessListener(aVoid -> {
+                            user.setSynced(true);
+                            userDao.updateUser(user);
+                            if (listener != null) listener.onSuccess();
+                        })
+                        .addOnFailureListener(e -> {
+                            // Still in Room, will sync later
+                            syncManager.syncNow(userId);
+                            if (listener != null) listener.onFailure(e);
+                        });
+            } else {
+                if (listener != null) listener.onFailure(new Exception("User not found"));
+            }
+        });
     }
 
     /**
@@ -74,56 +119,65 @@ public class UserRepository {
      */
     public void updateUserStats(String userId, int totalWorkouts, int currentStreak,
                                 double totalVolume, int activePrograms) {
-        firestore. collection("users")
-                .document(userId)
-                .update(
-                        "totalWorkouts", totalWorkouts,
-                        "currentStreak", currentStreak,
-                        "totalVolumeLifted", totalVolume,
-                        "activePrograms", activePrograms,
-                        "updatedAt", Timestamp.now()
-                )
-                .addOnSuccessListener(aVoid -> {
-                    // Update Room cache
-                    executor.execute(() -> {
-                        UserEntity user = userDao.getUserByIdSync(userId);
-                        if (user != null) {
-                            user.setTotalWorkouts(totalWorkouts);
-                            user.setCurrentStreak(currentStreak);
-                            user.setTotalVolumeLifted(totalVolume);
-                            user.setActivePrograms(activePrograms);
-                            user.setUpdatedAt(System.currentTimeMillis());
+        executor.execute(() -> {
+            // Update Room first
+            UserEntity user = userDao.getUserByIdSync(userId);
+            if (user != null) {
+                user.setTotalWorkouts(totalWorkouts);
+                user.setCurrentStreak(currentStreak);
+                user.setTotalVolumeLifted(totalVolume);
+                user.setActivePrograms(activePrograms);
+                user.setUpdatedAt(System.currentTimeMillis());
+                user.setSynced(false);
+                userDao.updateUser(user);
+
+                // Try to sync to Firestore
+                firestore.collection(Constants.COLLECTION_USERS)
+                        .document(userId)
+                        .update(
+                                "totalWorkouts", totalWorkouts,
+                                "currentStreak", currentStreak,
+                                "totalVolumeLifted", totalVolume,
+                                "activePrograms", activePrograms,
+                                "updatedAt", Timestamp.now()
+                        )
+                        .addOnSuccessListener(aVoid -> {
+                            user.setSynced(true);
                             userDao.updateUser(user);
-                        }
-                    });
-                });
+                        })
+                        .addOnFailureListener(e -> {
+                            // Will sync later
+                            syncManager.syncNow(userId);
+                        });
+            }
+        });
     }
 
     /**
-     * Update user display name
+     * Create user - writes to Room first, then attempts Firestore
      */
-    public LiveData<Boolean> updateDisplayName(String userId, String displayName) {
-        MutableLiveData<Boolean> result = new MutableLiveData<>();
+    public void createUser(User user, OnCompleteListener listener) {
+        // Write to Room first
+        UserEntity entity = convertToEntity(user);
+        entity.setSynced(false);
+        executor.execute(() -> {
+            userDao.insertUser(entity);
 
-        firestore. collection("users")
-                .document(userId)
-                .update("displayName", displayName, "updatedAt", Timestamp.now())
-                .addOnSuccessListener(aVoid -> {
-                    result.setValue(true);
-
-                    // Update Room cache
-                    executor.execute(() -> {
-                        UserEntity user = userDao. getUserByIdSync(userId);
-                        if (user != null) {
-                            user.setDisplayName(displayName);
-                            user.setUpdatedAt(System.currentTimeMillis());
-                            userDao.updateUser(user);
-                        }
+            // Write to Firestore
+            firestore.collection(Constants.COLLECTION_USERS)
+                    .document(user.getUserId())
+                    .set(user)
+                    .addOnSuccessListener(aVoid -> {
+                        entity.setSynced(true);
+                        userDao.updateUser(entity);
+                        if (listener != null) listener.onSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        // Still in Room, will sync later
+                        syncManager.syncNow(user.getUserId());
+                        if (listener != null) listener.onFailure(e);
                     });
-                })
-                .addOnFailureListener(e -> result. setValue(false));
-
-        return result;
+        });
     }
 
     /**
@@ -136,10 +190,10 @@ public class UserRepository {
     }
 
     // Conversion helpers
-    private UserEntity modelToEntity(User user) {
+    private UserEntity convertToEntity(User user) {
         UserEntity entity = new UserEntity();
         entity.setUserId(user.getUserId());
-        entity.setEmail(user. getEmail());
+        entity.setEmail(user.getEmail());
         entity.setUsername(user.getUsername());
         entity.setDisplayName(user.getDisplayName());
         entity.setCreatedAt(user.getCreatedAt() != null ? user.getCreatedAt().toDate().getTime() : 0);
@@ -151,18 +205,24 @@ public class UserRepository {
         return entity;
     }
 
-    private User entityToModel(UserEntity entity) {
+    private User convertToModel(UserEntity entity) {
+        if (entity == null) return null;
         User user = new User();
         user.setUserId(entity.getUserId());
         user.setEmail(entity.getEmail());
         user.setUsername(entity.getUsername());
         user.setDisplayName(entity.getDisplayName());
-        user.setCreatedAt(new Timestamp(new java.util.Date(entity. getCreatedAt())));
-        user.setUpdatedAt(new Timestamp(new java.util. Date(entity.getUpdatedAt())));
+        user.setCreatedAt(new Timestamp(new java.util.Date(entity.getCreatedAt())));
+        user.setUpdatedAt(new Timestamp(new java.util.Date(entity.getUpdatedAt())));
         user.setTotalWorkouts(entity.getTotalWorkouts());
         user.setCurrentStreak(entity.getCurrentStreak());
         user.setTotalVolumeLifted(entity.getTotalVolumeLifted());
         user.setActivePrograms(entity.getActivePrograms());
         return user;
+    }
+
+    public interface OnCompleteListener {
+        void onSuccess();
+        void onFailure(Exception e);
     }
 }

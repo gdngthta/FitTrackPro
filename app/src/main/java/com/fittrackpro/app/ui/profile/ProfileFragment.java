@@ -45,7 +45,7 @@ public class ProfileFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         authRepository = new AuthRepository();
-        userRepository = new UserRepository(AppDatabase.getInstance(requireContext()));
+        userRepository = new UserRepository(AppDatabase.getInstance(requireContext()), requireContext());
 
         setupObservers();
         setupListeners();

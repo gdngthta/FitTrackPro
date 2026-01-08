@@ -15,9 +15,10 @@ import com.fittrackpro.app.data.local. entity.*;
                 WorkoutProgramEntity.class,
                 CompletedWorkoutEntity.class,
                 PersonalRecordEntity.class,
-                FoodEntity.class
+                FoodEntity.class,
+                MealLoggedEntity.class
         },
-        version = 1,
+        version = 2,
         exportSchema = false
 )
 @TypeConverters({Converters.class})
@@ -30,6 +31,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract CompletedWorkoutDao completedWorkoutDao();
     public abstract PersonalRecordDao personalRecordDao();
     public abstract FoodDao foodDao();
+    public abstract MealLoggedDao mealLoggedDao();
 
     public static AppDatabase getInstance(Context context) {
         if (INSTANCE == null) {

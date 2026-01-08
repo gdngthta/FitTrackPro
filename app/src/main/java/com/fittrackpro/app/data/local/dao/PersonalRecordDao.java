@@ -19,4 +19,7 @@ public interface PersonalRecordDao {
 
     @Delete
     void deleteRecord(PersonalRecordEntity record);
+
+    @Query("SELECT * FROM personal_records WHERE synced = 0")
+    List<PersonalRecordEntity> getUnsyncedRecords();
 }

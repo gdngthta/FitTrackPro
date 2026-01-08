@@ -1,23 +1,24 @@
-package com.fittrackpro. app.data.local.entity;
+package com.fittrackpro.app.data.local.entity;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-import androidx.annotation. NonNull;
+import androidx.annotation.NonNull;
 
-@Entity(tableName = "foods")
-public class FoodEntity {
+@Entity(tableName = "meals_logged")
+public class MealLoggedEntity {
     @PrimaryKey
     @NonNull
+    private String logId;
+    private String userId;
     private String foodId;
     private String foodName;
-    private String brand;
-    private double servingSize;
-    private String servingUnit;
+    private String mealType;
+    private double portionMultiplier;
     private double calories;
     private double protein;
     private double carbs;
     private double fats;
-    private boolean isVerified;
+    private long loggedAt;
     private boolean synced = false;
     private long lastSyncAttempt = 0;
     private int syncAttempts = 0;
@@ -25,20 +26,23 @@ public class FoodEntity {
 
     // Getters and setters
     @NonNull
+    public String getLogId() { return logId; }
+    public void setLogId(@NonNull String logId) { this.logId = logId; }
+
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+
     public String getFoodId() { return foodId; }
-    public void setFoodId(@NonNull String foodId) { this.foodId = foodId; }
+    public void setFoodId(String foodId) { this.foodId = foodId; }
 
     public String getFoodName() { return foodName; }
     public void setFoodName(String foodName) { this.foodName = foodName; }
 
-    public String getBrand() { return brand; }
-    public void setBrand(String brand) { this.brand = brand; }
+    public String getMealType() { return mealType; }
+    public void setMealType(String mealType) { this.mealType = mealType; }
 
-    public double getServingSize() { return servingSize; }
-    public void setServingSize(double servingSize) { this.servingSize = servingSize; }
-
-    public String getServingUnit() { return servingUnit; }
-    public void setServingUnit(String servingUnit) { this.servingUnit = servingUnit; }
+    public double getPortionMultiplier() { return portionMultiplier; }
+    public void setPortionMultiplier(double portionMultiplier) { this.portionMultiplier = portionMultiplier; }
 
     public double getCalories() { return calories; }
     public void setCalories(double calories) { this.calories = calories; }
@@ -52,8 +56,8 @@ public class FoodEntity {
     public double getFats() { return fats; }
     public void setFats(double fats) { this.fats = fats; }
 
-    public boolean isVerified() { return isVerified; }
-    public void setVerified(boolean verified) { isVerified = verified; }
+    public long getLoggedAt() { return loggedAt; }
+    public void setLoggedAt(long loggedAt) { this.loggedAt = loggedAt; }
 
     public boolean isSynced() { return synced; }
     public void setSynced(boolean synced) { this.synced = synced; }

@@ -130,4 +130,12 @@
     <string name="no_meals_logged">No meals logged yet</string>
     <string name="no_programs_yet">No workout programs yet.\nTap + to create your first program!</string>
 
+    <!-- Sync Status -->
+    <string name="sync_status">Sync Status</string>
+    <string name="sync_status_icon">Sync status icon</string>
+    <string name="sync_status_synced">All synced</string>
+    <string name="sync_status_syncing">Syncing...</string>
+    <string name="sync_status_offline">Offline - will sync later</string>
+    <string name="sync_status_error">Sync error</string>
+
 </resources>
