@@ -1,58 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme (Light - Optional, app is dark-focused) -->
-    <style name="Base.Theme.FitTrackPro" parent="Theme.Material3.Light.NoActionBar">
-        <!-- Primary brand color -->
-        <item name="colorPrimary">#10B981</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorPrimaryContainer">#D1FAE5</item>
-        <item name="colorOnPrimaryContainer">#003822</item>
+    <!-- Dark Theme with Emerald Green Accent -->
+    <style name="Base.Theme.FitTrackPro" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Primary - Emerald Green -->
+        <item name="colorPrimary">@color/emerald_green</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/emerald_dark</item>
+        <item name="colorOnPrimaryContainer">@color/emerald_very_light</item>
 
-        <!-- Secondary brand color -->
-        <item name="colorSecondary">#14B8A6</item>
-        <item name="colorOnSecondary">#FFFFFF</item>
-        <item name="colorSecondaryContainer">#99F6E4</item>
-        <item name="colorOnSecondaryContainer">#003734</item>
+        <!-- Secondary - Teal -->
+        <item name="colorSecondary">@color/md_theme_secondary</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/md_theme_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_onSecondaryContainer</item>
 
-        <!-- Tertiary brand color -->
-        <item name="colorTertiary">#34D399</item>
-        <item name="colorOnTertiary">#FFFFFF</item>
-        <item name="colorTertiaryContainer">#D1FAE5</item>
-        <item name="colorOnTertiaryContainer">#003822</item>
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/emerald_light</item>
+        <item name="colorOnTertiary">@color/black</item>
+        <item name="colorTertiaryContainer">@color/md_theme_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_onTertiaryContainer</item>
 
-        <!-- Error color -->
-        <item name="colorError">#B3261E</item>
-        <item name="colorOnError">#FFFFFF</item>
+        <!-- Error -->
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/white</item>
 
-        <!-- Background color -->
-        <item name="android:colorBackground">#FAFAFA</item>
-        <item name="colorOnBackground">#1C1B1F</item>
+        <!-- Background -->
+        <item name="android:colorBackground">@color/very_dark_gray</item>
+        <item name="colorOnBackground">@color/md_theme_onBackground</item>
 
-        <!-- Surface color -->
-        <item name="colorSurface">#FFFFFF</item>
-        <item name="colorOnSurface">#1C1B1F</item>
-        <item name="colorSurfaceVariant">#E0E0E0</item>
-        <item name="colorOnSurfaceVariant">#49454F</item>
+        <!-- Surface -->
+        <item name="colorSurface">@color/dark_gray</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_onSurfaceVariant</item>
 
-        <!-- Outline color -->
-        <item name="colorOutline">#79747E</item>
+        <!-- Outline -->
+        <item name="colorOutline">@color/md_theme_outline</item>
 
-        <!-- Status bar color -->
-        <item name="android:statusBarColor">@color/md_theme_dark_surface</item>
+        <!-- Status bar - dark with white icons -->
+        <item name="android:statusBarColor">@color/very_dark_gray</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@color/very_dark_gray</item>
     </style>
 
-    <!-- Main application theme -->
     <style name="Theme.FitTrackPro" parent="Base.Theme.FitTrackPro" />
 
-    <!-- NoActionBar theme -->
     <style name="Theme.FitTrackPro.NoActionBar" parent="Theme.FitTrackPro">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="ShapeAppearance.Material3.Corner.Full" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
     </style>
 </resources>

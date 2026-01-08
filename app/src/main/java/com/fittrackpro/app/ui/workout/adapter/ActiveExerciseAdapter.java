@@ -1,6 +1,7 @@
-package com.fittrackpro.app.ui.workout. adapter;
+package com.fittrackpro.app.ui.workout.adapter;
 
-import android.text. Editable;
+import android.content.Context;
+import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,8 +11,9 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com. fittrackpro.app. databinding.ItemActiveExerciseBinding;
-import com.fittrackpro.app.data. model.ProgramExercise;
+import com.fittrackpro.app.R;
+import com.fittrackpro.app.databinding.ItemActiveExerciseBinding;
+import com.fittrackpro.app.data.model.ProgramExercise;
 
 /**
  * Adapter for active workout exercise logging.
@@ -71,27 +73,29 @@ public class ActiveExerciseAdapter extends ListAdapter<ProgramExercise, ActiveEx
         }
 
         public void bind(ProgramExercise exercise, OnSetLoggedListener listener) {
+            Context context = binding.getRoot().getContext();
             binding.textExerciseName.setText(exercise.getExerciseName());
-            binding.textTargetSets.setText(exercise.getTargetSets() + " sets");
-            binding. textTargetReps.setText(
-                    exercise.getTargetRepsMin() + "-" + exercise.getTargetRepsMax() + " reps"
+            binding.textTargetSets.setText(exercise.getTargetSets() + " " + context.getString(R.string.sets));
+            binding.textTargetReps.setText(
+                    exercise.getTargetRepsMin() + "-" + exercise.getTargetRepsMax() + " " + 
+                    context.getString(R.string.reps)
             );
 
             if (exercise.getNotes() != null && !exercise.getNotes().isEmpty()) {
                 binding.textExerciseNotes.setText(exercise.getNotes());
-                binding.textExerciseNotes.setVisibility(View. VISIBLE);
+                binding.textExerciseNotes.setVisibility(View.VISIBLE);
             } else {
-                binding.textExerciseNotes.setVisibility(View. GONE);
+                binding.textExerciseNotes.setVisibility(View.GONE);
             }
 
             // Log set button
-            binding.buttonLogSet. setOnClickListener(v -> {
+            binding.buttonLogSet.setOnClickListener(v -> {
                 String weightStr = binding.editWeight.getText().toString();
                 String repsStr = binding.editReps.getText().toString();
 
                 if (weightStr.isEmpty() || repsStr.isEmpty()) {
-                    binding.editWeight.setError("Enter weight");
-                    binding.editReps.setError("Enter reps");
+                    binding.editWeight.setError(context.getString(R.string.enter_weight));
+                    binding.editReps.setError(context.getString(R.string.enter_reps));
                     return;
                 }
 

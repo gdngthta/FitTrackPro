@@ -1,6 +1,7 @@
 package com.fittrackpro.app.data.repository;
 
 import android.content.Context;
+import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import com.fittrackpro.app.data.local.AppDatabase;
@@ -70,15 +71,19 @@ public class UserRepository {
      * Update user - writes to Room immediately, schedules Firestore sync
      */
     public void updateUser(User user) {
-        // Write to Room immediately
         UserEntity entity = convertToEntity(user);
-        entity.setSynced(false); // Mark as needing sync
-        entity.setUpdatedAt(System.currentTimeMillis());
-        executor.execute(() -> {
-            userDao.updateUser(entity);
-            // Schedule sync
-            syncManager.syncNow(user.getUserId());
-        });
+        entity.setSynced(false);
+        
+        new Thread(() -> {
+            try {
+                userDao.updateUser(entity);
+                syncManager.syncNow(user.getUserId());
+            } catch (Exception e) {
+                Log.e("UserRepository", "Failed to update user in Room", e);
+                // Still attempt Firestore sync
+                syncManager.syncNow(user.getUserId());
+            }
+        }).start();
     }
 
     /**
@@ -157,27 +162,37 @@ public class UserRepository {
      * Create user - writes to Room first, then attempts Firestore
      */
     public void createUser(User user, OnCompleteListener listener) {
-        // Write to Room first
         UserEntity entity = convertToEntity(user);
-        entity.setSynced(false);
-        executor.execute(() -> {
-            userDao.insertUser(entity);
-
-            // Write to Firestore
-            firestore.collection(Constants.COLLECTION_USERS)
+        
+        new Thread(() -> {
+            try {
+                userDao.insertUser(entity);
+                
+                // Write to Firestore
+                firestore.collection(Constants.COLLECTION_USERS)
                     .document(user.getUserId())
                     .set(user)
                     .addOnSuccessListener(aVoid -> {
                         entity.setSynced(true);
-                        userDao.updateUser(entity);
-                        if (listener != null) listener.onSuccess();
+                        try {
+                            userDao.updateUser(entity);
+                            if (listener != null) listener.onSuccess();
+                        } catch (Exception e) {
+                            Log.e("UserRepository", "Failed to mark as synced", e);
+                            if (listener != null) listener.onSuccess(); // Still success since Firestore worked
+                        }
                     })
                     .addOnFailureListener(e -> {
+                        Log.e("UserRepository", "Firestore write failed", e);
                         // Still in Room, will sync later
                         syncManager.syncNow(user.getUserId());
                         if (listener != null) listener.onFailure(e);
                     });
-        });
+            } catch (Exception e) {
+                Log.e("UserRepository", "Failed to insert user in Room", e);
+                if (listener != null) listener.onFailure(e);
+            }
+        }).start();
     }
 
     /**
