@@ -125,7 +125,10 @@ public class SummaryExerciseAdapter extends RecyclerView.Adapter<SummaryExercise
                 
                 setView.setText(setText);
                 setView.setTextSize(14);
-                setView.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));
+                setView.setTextColor(androidx.core.content.ContextCompat.getColor(
+                    itemView.getContext(), 
+                    R.color.md_theme_onSurface
+                ));
                 
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,

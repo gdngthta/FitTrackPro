@@ -130,25 +130,30 @@
         android:label="@string/workout_summary">
 
         <argument
-            android:name="durationSeconds"
+            android:name="userId"
+            app:argType="string" />
+
+        <argument
+            android:name="programId"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="dayId"
+            app:argType="string"
+            app:nullable="true" />
+
+        <argument
+            android:name="workoutName"
+            app:argType="string" />
+
+        <argument
+            android:name="startTime"
             app:argType="long" />
 
         <argument
-            android:name="totalVolume"
-            app:argType="float" />
-
-        <argument
-            android:name="totalSets"
-            app:argType="integer" />
-
-        <argument
-            android:name="totalExercises"
-            app:argType="integer" />
-
-        <argument
-            android:name="prs"
-            app:argType="string[]"
-            app:nullable="true" />
+            android:name="endTime"
+            app:argType="long" />
     </fragment>
 
     <!-- Diet Flow -->

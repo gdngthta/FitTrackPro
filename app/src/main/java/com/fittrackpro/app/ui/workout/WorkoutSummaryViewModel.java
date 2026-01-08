@@ -225,14 +225,15 @@ public class WorkoutSummaryViewModel extends AndroidViewModel {
         Map<String, PersonalRecord> prs = new HashMap<>();
         
         try {
-            // Query Firestore synchronously
+            // Query Firestore synchronously (safe because we're already in executor thread)
             var task = firestore.collection(Constants.COLLECTION_PERSONAL_RECORDS)
                 .whereEqualTo("userId", userId)
                 .whereEqualTo("exerciseName", exerciseName)
                 .get();
 
-            // Wait for result
-            var querySnapshot = com.google.android.gms.tasks.Tasks.await(task);
+            // Wait for result with timeout
+            var querySnapshot = com.google.android.gms.tasks.Tasks.await(task, 
+                10, java.util.concurrent.TimeUnit.SECONDS);
             
             for (var doc : querySnapshot.getDocuments()) {
                 PersonalRecord pr = doc.toObject(PersonalRecord.class);
@@ -240,8 +241,16 @@ public class WorkoutSummaryViewModel extends AndroidViewModel {
                     prs.put(pr.getRecordType(), pr);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (java.util.concurrent.ExecutionException e) {
+            // Log execution error but continue with empty PRs
+            android.util.Log.e("WorkoutSummaryVM", "Error fetching PRs", e);
+        } catch (InterruptedException e) {
+            // Thread was interrupted, restore interrupt status
+            Thread.currentThread().interrupt();
+            android.util.Log.e("WorkoutSummaryVM", "Interrupted while fetching PRs", e);
+        } catch (java.util.concurrent.TimeoutException e) {
+            // Timeout - continue with empty PRs
+            android.util.Log.e("WorkoutSummaryVM", "Timeout fetching PRs", e);
         }
 
         return prs;

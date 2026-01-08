@@ -113,6 +113,8 @@ public class ActiveWorkoutFragment extends Fragment {
             binding.chronometer.stop();
 
             // Prepare workout data for summary
+            // Note: For very large workouts (>100 sets), consider using SharedViewModel
+            // or database to avoid TransactionTooLargeException with Bundle
             Bundle args = new Bundle();
             args.putString("userId", viewModel.getUserId().getValue());
             args.putString("programId", viewModel.getProgramId().getValue());
