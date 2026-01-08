@@ -34,6 +34,7 @@ public class AuthRepository {
 
     /**
      * Check if username is available (globally unique)
+     * Returns true if available, false if taken, null if error checking
      */
     public LiveData<Boolean> isUsernameAvailable(String username) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
@@ -42,10 +43,13 @@ public class AuthRepository {
                 .whereEqualTo("username", username)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    // If query returns empty, username is available
                     result.setValue(querySnapshot.isEmpty());
                 })
                 .addOnFailureListener(e -> {
-                    result. setValue(false);
+                    // On error, return null to indicate we couldn't check
+                    // This prevents falsely claiming username is taken
+                    result.setValue(null);
                 });
 
         return result;

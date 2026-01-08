@@ -77,20 +77,31 @@ public class RegisterFragment extends Fragment {
 
                 // Check availability
                 authRepository.isUsernameAvailable(username).observe(getViewLifecycleOwner(), available -> {
-                    if (available != null && available) {
+                    if (available == null) {
+                        // Error checking username - could be network issue
+                        binding.textUsernameStatus.setText("Error checking username");
+                        binding.textUsernameStatus.setTextColor(
+                                ContextCompat.getColor(requireContext(), R.color.md_theme_error)
+                        );
+                        usernameAvailable = false;
+                        binding.textUsernameStatus.setVisibility(View.VISIBLE);
+                    } else if (available) {
+                        // Username is available
                         binding.textUsernameStatus.setText(R.string.username_available);
                         binding.textUsernameStatus.setTextColor(
                                 ContextCompat.getColor(requireContext(), R.color.emerald_green)
                         );
                         usernameAvailable = true;
+                        binding.textUsernameStatus.setVisibility(View.VISIBLE);
                     } else {
+                        // Username is taken
                         binding.textUsernameStatus.setText(R.string.username_taken);
                         binding.textUsernameStatus.setTextColor(
                                 ContextCompat.getColor(requireContext(), R.color.md_theme_error)
                         );
                         usernameAvailable = false;
+                        binding.textUsernameStatus.setVisibility(View.VISIBLE);
                     }
-                    binding.textUsernameStatus.setVisibility(View.VISIBLE);
                 });
             }
         });
