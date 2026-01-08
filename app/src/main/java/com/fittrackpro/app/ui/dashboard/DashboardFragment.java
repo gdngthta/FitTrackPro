@@ -47,7 +47,13 @@ public class DashboardFragment extends Fragment {
         setupObservers();
 
         // Get current user ID
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        com.google.firebase.auth.FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            // User not logged in, return to auth
+            requireActivity().finish();
+            return;
+        }
+        String userId = currentUser.getUid();
         viewModel.setUserId(userId);
 
         // Setup swipe refresh

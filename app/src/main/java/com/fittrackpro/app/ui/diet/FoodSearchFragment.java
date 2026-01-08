@@ -48,7 +48,13 @@ public class FoodSearchFragment extends Fragment {
             mealType = getArguments().getString("mealType");
         }
 
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        com.google.firebase.auth.FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            // User not logged in, return to auth
+            requireActivity().finish();
+            return;
+        }
+        String userId = currentUser.getUid();
         viewModel.setUserId(userId);
 
         setupRecyclerView();
@@ -120,7 +126,12 @@ public class FoodSearchFragment extends Fragment {
     }
 
     private void logFood(Food food, double portionMultiplier) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        com.google.firebase.auth.FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            // User not logged in, can't log food
+            return;
+        }
+        String userId = currentUser.getUid();
 
         viewModel.logMeal(
                 food.getFoodId(),
