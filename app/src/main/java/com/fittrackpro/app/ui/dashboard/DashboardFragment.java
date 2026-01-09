@@ -8,21 +8,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.fittrackpro.app.R;
 import com.fittrackpro.app.databinding.FragmentDashboardBinding;
 import com.fittrackpro.app.ui.dashboard.adapter.RecentWorkoutAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 
 /**
- * DashboardFragment displays user stats, recent workouts, and leaderboard preview.
+ * DashboardFragment displays user stats, recent workouts, and quick actions.
  *
- * Layout must:
- * - Use NestedScrollView as root
- * - Display stat cards in flexible layout (2x2 grid or vertical on small screens)
- * - Show RecyclerView for recent workouts
- * - Show leaderboard preview (top 3)
- * - Use ConstraintLayout with proper constraints
+ * Layout features:
+ * - Time-based greeting
+ * - Statistics cards (This Week, This Month)
+ * - Overall Progress section
+ * - Active Program card
+ * - Recent Activity section
+ * - Quick Action cards for navigation
  */
 public class DashboardFragment extends Fragment {
 
@@ -41,10 +44,11 @@ public class DashboardFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(DashboardViewModel. class);
+        viewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
 
         setupRecyclerView();
         setupObservers();
+        setupClickListeners();
 
         // Get current user ID
         com.google.firebase.auth.FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -70,14 +74,55 @@ public class DashboardFragment extends Fragment {
     }
 
     private void setupObservers() {
+        // Observe greeting
+        viewModel.getGreeting().observe(getViewLifecycleOwner(), greeting -> {
+            if (greeting != null) {
+                binding.textGreeting.setText(greeting);
+            }
+        });
+
         // Observe user data
         viewModel.getUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
-                binding.textWelcome.setText("Welcome, " + user.getDisplayName());
+                binding.textUsername.setText(user.getDisplayName());
                 binding.textTotalWorkouts.setText(String.valueOf(user.getTotalWorkouts()));
-                binding.textCurrentStreak.setText(user.getCurrentStreak() + " days");
-                binding.textTotalVolume.setText(String.format("%.1f kg", user.getTotalVolumeLifted()));
-                binding.textActivePrograms.setText(String.valueOf(user.getActivePrograms()));
+                
+                // Format volume as X.Xk
+                double volumeInK = user.getTotalVolumeLifted() / 1000.0;
+                binding.textTotalVolume.setText(String.format("%.1fk", volumeInK));
+            }
+        });
+
+        // Observe this week workouts
+        viewModel.getThisWeekWorkouts().observe(getViewLifecycleOwner(), count -> {
+            if (count != null) {
+                binding.textThisWeek.setText(String.valueOf(count));
+            }
+        });
+
+        // Observe this month workouts
+        viewModel.getThisMonthWorkouts().observe(getViewLifecycleOwner(), count -> {
+            if (count != null) {
+                binding.textThisMonth.setText(String.valueOf(count));
+            }
+        });
+
+        // Observe average workout duration
+        viewModel.getAvgWorkoutDuration().observe(getViewLifecycleOwner(), avgMinutes -> {
+            if (avgMinutes != null) {
+                binding.textAvgDuration.setText(String.valueOf(avgMinutes));
+            }
+        });
+
+        // Observe active program
+        viewModel.getActiveProgram().observe(getViewLifecycleOwner(), program -> {
+            if (program != null) {
+                binding.textNoActiveProgram.setVisibility(View.GONE);
+                binding.buttonCreateProgram.setVisibility(View.GONE);
+                // TODO: Show program details when UI is expanded
+            } else {
+                binding.textNoActiveProgram.setVisibility(View.VISIBLE);
+                binding.buttonCreateProgram.setVisibility(View.VISIBLE);
             }
         });
 
@@ -85,28 +130,47 @@ public class DashboardFragment extends Fragment {
         viewModel.getRecentWorkouts().observe(getViewLifecycleOwner(), workouts -> {
             if (workouts != null) {
                 workoutAdapter.submitList(workouts);
-                binding.emptyStateWorkouts.setVisibility(workouts.isEmpty() ? View.VISIBLE : View. GONE);
+                if (workouts.isEmpty()) {
+                    binding.recyclerRecentWorkouts.setVisibility(View.GONE);
+                    binding.emptyStateWorkouts.setVisibility(View.VISIBLE);
+                } else {
+                    binding.recyclerRecentWorkouts.setVisibility(View.VISIBLE);
+                    binding.emptyStateWorkouts.setVisibility(View.GONE);
+                }
             }
         });
+    }
 
-        // Observe leaderboard preview
-        viewModel.getLeaderboardPreview().observe(getViewLifecycleOwner(), entries -> {
-            if (entries != null && ! entries.isEmpty()) {
-                // Display top 3 in UI (assumption: layout has top1, top2, top3 views)
-                if (entries.size() > 0) {
-                    binding.textTop1Name.setText(entries.get(0).getUsername());
-                    binding.textTop1Volume.setText(String.format("%. 1f kg", entries.get(0).getTotalVolume()));
-                }
-                if (entries.size() > 1) {
-                    binding.textTop2Name.setText(entries. get(1).getUsername());
-                    binding.textTop2Volume.setText(String.format("%. 1f kg", entries.get(1).getTotalVolume()));
-                }
-                if (entries. size() > 2) {
-                    binding.textTop3Name.setText(entries.get(2).getUsername());
-                    binding.textTop3Volume.setText(String.format("%.1f kg", entries.get(2).getTotalVolume()));
-                }
-            }
-        });
+    private void setupClickListeners() {
+        // Settings navigation
+        binding.buttonSettings.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.settingsFragment)
+        );
+
+        // Create Program button
+        binding.buttonCreateProgram.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.addRoutineFragment)
+        );
+
+        // Start First Workout button
+        binding.buttonStartFirstWorkout.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.workoutHubFragment)
+        );
+
+        // Browse Programs action card
+        binding.cardBrowsePrograms.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.addRoutineFragment)
+        );
+
+        // Track Nutrition action card
+        binding.cardTrackNutrition.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.dietFragment)
+        );
+
+        // Leaderboard action card
+        binding.cardLeaderboard.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.leaderboardFragment)
+        );
     }
 
     @Override

@@ -197,4 +197,39 @@
     <string name="sync_status_offline">Offline</string>
     <string name="sync_status_error">Sync Error</string>
 
+    <!-- Dashboard Redesign -->
+    <string name="good_morning">Good Morning</string>
+    <string name="good_afternoon">Good Afternoon</string>
+    <string name="good_evening">Good Evening</string>
+    <string name="good_night">Good Night</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="workouts">workouts</string>
+    <string name="overall_progress">Overall Progress</string>
+    <string name="kg_lifted">kg Lifted</string>
+    <string name="avg_min">Avg Min</string>
+    <string name="active_program">Active Program</string>
+    <string name="no_active_program">No active program</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="start_first_workout">Start First Workout</string>
+    <string name="browse_programs">Browse Programs</string>
+    <string name="track_nutrition">Track Nutrition</string>
+    
+    <!-- Settings Redesign -->
+    <string name="settings_subtitle">Customize your app experience</string>
+    <string name="measurement_units">Measurement Units</string>
+    <string name="metric_units">Metric (kg, cm)</string>
+    <string name="imperial_units">Imperial (lbs, in)</string>
+    <string name="preferences">Preferences</string>
+    <string name="workout_reminders">Workout Reminders</string>
+    <string name="workout_reminders_desc">Get notified to stay consistent</string>
+    <string name="show_equivalence_subtitle">Compare lifted weight to real objects</string>
+    <string name="account">Account</string>
+    <string name="log_out">Log Out</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_confirm_title">Delete Account?</string>
+    <string name="delete_account_confirm_message">This action cannot be undone. All your data will be permanently deleted.</string>
+    <string name="delete_account_success">Account deleted successfully</string>
+    <string name="delete_account_failed">Failed to delete account</string>
+
 </resources>
