@@ -11,17 +11,31 @@
 
     <!-- Authentication -->
     <string name="login">Login</string>
+    <string name="log_in">Log In</string>
     <string name="register">Register</string>
     <string name="email">Email</string>
+    <string name="email_address">Email Address</string>
     <string name="password">Password</string>
     <string name="username">Username</string>
+    <string name="full_name">Full Name</string>
     <string name="display_name">Display Name</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="welcome_back">Welcome back!</string>
+    <string name="welcome_back_title">Welcome Back</string>
+    <string name="welcome_back_subtitle">Log in to continue your fitness journey</string>
     <string name="create_account">Create Account</string>
+    <string name="create_account_subtitle">Start your fitness journey today</string>
     <string name="dont_have_account">Don\'t have an account?  Sign up</string>
+    <string name="dont_have_account_register">Don\'t have an account? <font color="#10B981">Register here</font></string>
     <string name="already_have_account">Already have an account? Login</string>
+    <string name="already_have_account_login">Already have an account? <font color="#10B981">Log in here</font></string>
     <string name="logout">Logout</string>
+    <string name="app_branding">GymTracker</string>
+    <string name="app_tagline">Plan, perform, and track your workouts in a structured yet flexible way</string>
+    <string name="join_users_tagline">Join thousands of users achieving their fitness goals</string>
+    <string name="password_hint">Minimum 6 characters</string>
+    <string name="confirm_password_hint">Re-enter your password</string>
+    <string name="back">Back</string>
     
     <!-- Validation -->
     <string name="email_required">Email is required</string>

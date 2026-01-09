@@ -37,6 +37,10 @@ public class LoginFragment extends Fragment {
 
         authRepository = new AuthRepository();
 
+        binding.buttonBack.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+
         binding.buttonLogin.setOnClickListener(v -> handleLogin());
 
         binding.textGoToRegister.setOnClickListener(v -> {

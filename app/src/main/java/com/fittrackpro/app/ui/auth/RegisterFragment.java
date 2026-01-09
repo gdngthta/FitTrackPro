@@ -44,6 +44,10 @@ public class RegisterFragment extends Fragment {
 
         setupUsernameValidation();
 
+        binding.buttonBack.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+
         binding.buttonRegister.setOnClickListener(v -> handleRegister());
 
         binding.textGoToLogin.setOnClickListener(v -> {
