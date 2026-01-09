@@ -56,21 +56,26 @@ public class MyProgramsFragment extends Fragment {
     private void setupListeners() {
         // FAB click - create custom program
         binding.fabCreateProgram.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
+            // Navigate from activity's nav controller since we're in a nested fragment
+            androidx.navigation.NavController navController = androidx.navigation.Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+            navController.navigate(R.id.addRoutineFragment);
         });
 
         // Browse programs button in empty state
         binding.buttonBrowsePrograms.setOnClickListener(v -> {
-            // Switch to Browse Programs tab
+            // Switch to Browse Programs tab (tab 0)
             if (getParentFragment() instanceof WorkoutFragment) {
-                // Get ViewPager from parent and switch to tab 0
-                // This will be handled in the parent fragment
+                // Access parent fragment's ViewPager - but this is tricky
+                // For now, just navigate to add routine
+                androidx.navigation.NavController navController = androidx.navigation.Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+                navController.navigate(R.id.presetProgramListFragment);
             }
         });
 
         // Create custom button in empty state
         binding.buttonCreateCustom.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
+            androidx.navigation.NavController navController = androidx.navigation.Navigation.findNavController(requireActivity(), R.id.nav_host_fragment);
+            navController.navigate(R.id.createCustomProgramFragment);
         });
     }
 
