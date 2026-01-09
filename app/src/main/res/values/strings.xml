@@ -101,6 +101,57 @@
     <string name="personal_records">Personal Records</string>
     <string name="view_details">View Details</string>
     <string name="add_routine_title">Add Routine</string>
+    
+    <!-- Workout - New Strings for Complete UI -->
+    <string name="workout_subtitle">Choose a program or create your own</string>
+    <string name="my_programs">My Programs</string>
+    <string name="recommended_programs">Recommended Programs</string>
+    <string name="add_new_routine">Add New Routine</string>
+    <string name="add_new_routine_subtitle">Choose how you\'d like to start</string>
+    <string name="start_from_preset">Start from Preset</string>
+    <string name="start_from_preset_description">Choose from expertly designed programs tailored to your experience level. You can customize them after duplication.</string>
+    <string name="build_from_scratch">Build from Scratch</string>
+    <string name="build_from_scratch_description">Create a completely custom routine from the ground up. Perfect if you have specific training needs.</string>
+    <string name="routine_setup">Routine Setup</string>
+    <string name="routine_setup_subtitle">Define your program basics</string>
+    <string name="routine_name">Routine Name</string>
+    <string name="routine_name_hint">e.g., Upper/Lower Split</string>
+    <string name="training_frequency">Training Frequency (per week)</string>
+    <string name="training_frequency_help">This helps track your consistency but doesn\'t limit your workout days</string>
+    <string name="continue_btn">Continue</string>
+    <string name="back_to_workout">Back to Workout</string>
+    <string name="workout_days">workout days</string>
+    <string name="add_workout_day_btn">+ Add Workout Day</string>
+    <string name="workout_day_name">Workout Day Name</string>
+    <string name="workout_day_name_hint">e.g., Push Day, Leg Day</string>
+    <string name="add_day">Add Day</string>
+    <string name="day_format">Day %d</string>
+    <string name="exercises_count">%d exercises</string>
+    <string name="session_settings">Session Settings</string>
+    <string name="warmup">Warm-up</string>
+    <string name="warmup_description">5-10 minute dynamic warm-up</string>
+    <string name="cooldown">Cooldown</string>
+    <string name="cooldown_description">5-10 minute stretch routine</string>
+    <string name="no_exercises_added">No exercises added yet</string>
+    <string name="add_first_exercise">+ Add First Exercise</string>
+    <string name="add_exercise">+ Add Exercise</string>
+    <string name="add_exercise_title">Add Exercise</string>
+    <string name="add_exercise_subtitle">Search and configure your exercise</string>
+    <string name="search_exercises">Search exercises...</string>
+    <string name="selected_exercise">Selected Exercise</string>
+    <string name="number_of_sets">Number of Sets</string>
+    <string name="repetition_range">Repetition Range</string>
+    <string name="rest_time_seconds">Rest Time (seconds)</string>
+    <string name="back_to_search">Back to Search</string>
+    <string name="add_exercise_btn">Add Exercise</string>
+    <string name="sets_reps_rest_format">%1$d sets • %2$d-%3$d reps • %4$ds rest</string>
+    <string name="muscle_equipment_format">%1$s • %2$s</string>
+    <string name="back">Back</string>
+    <string name="beginner">Beginner</string>
+    <string name="intermediate">Intermediate</string>
+    <string name="pro">Pro</string>
+    <string name="elite">Elite</string>
+    <string name="per_week_format">%dx per week</string>
 
     <!-- Diet -->
     <string name="setup_nutrition_profile">Setup Nutrition Profile</string>

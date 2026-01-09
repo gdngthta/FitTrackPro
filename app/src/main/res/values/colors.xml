@@ -27,17 +27,17 @@
     <color name="md_theme_onErrorContainer">#410E0B</color>
 
     <!-- Background - Dark -->
-    <color name="md_theme_background">#121212</color>
-    <color name="md_theme_onBackground">#E0E0E0</color>
+    <color name="md_theme_background">#1A1F2E</color>
+    <color name="md_theme_onBackground">#FFFFFF</color>
 
     <!-- Surface - Dark -->
-    <color name="md_theme_surface">#1E1E1E</color>
-    <color name="md_theme_onSurface">#E0E0E0</color>
-    <color name="md_theme_surfaceVariant">#2C2C2C</color>
-    <color name="md_theme_onSurfaceVariant">#BDBDBD</color>
+    <color name="md_theme_surface">#2A2F3E</color>
+    <color name="md_theme_onSurface">#FFFFFF</color>
+    <color name="md_theme_surfaceVariant">#2C3344</color>
+    <color name="md_theme_onSurfaceVariant">#B0B0B0</color>
 
     <!-- Outline -->
-    <color name="md_theme_outline">#757575</color>
+    <color name="md_theme_outline">#4A5168</color>
     <color name="md_theme_outlineVariant">#424242</color>
 
     <!-- Emerald variants for custom usage -->
@@ -46,14 +46,32 @@
     <color name="emerald_light">#34D399</color>
     <color name="emerald_very_light">#A7F3D0</color>
     
+    <!-- Workout Section Specific Colors (Exact Match) -->
+    <color name="colorPrimary">#10B981</color>
+    <color name="colorBackground">#1A1F2E</color>
+    <color name="colorSurface">#2A2F3E</color>
+    <color name="colorSurfaceDark">#1F242F</color>
+    <color name="colorToolbar">#2C3344</color>
+    <color name="colorOnSurface">#FFFFFF</color>
+    <color name="colorOnSurfaceVariant">#B0B0B0</color>
+    <color name="colorOnSurfaceSecondary">#A0A5B3</color>
+    <color name="colorOnSurfaceTertiary">#707580</color>
+    <color name="colorBorder">#4A5168</color>
+    <color name="colorHint">#707580</color>
+    <color name="colorTextGray">#909499</color>
+    <color name="colorTextMediumGray">#808590</color>
+    
     <!-- Legacy color for compatibility -->
     <color name="md_theme_dark_onPrimary">#FFFFFF</color>
     <color name="highlight_color">#10B981</color>
-    <color name="card_background">#2C2C2C</color>
+    <color name="card_background">#2A2F3E</color>
 
     <!-- Basic colors -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="dark_gray">#1E1E1E</color>
-    <color name="very_dark_gray">#121212</color>
+    <color name="very_dark_gray">#1A1F2E</color>
+    
+    <!-- Alpha colors -->
+    <color name="colorPrimaryAlpha30">#4D10B981</color>
 </resources>
