@@ -18,6 +18,9 @@ import com.fittrackpro.app.ui.workout.adapter.WorkoutProgramAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * WorkoutHubFragment displays recommended and user programs.
  */
@@ -25,8 +28,11 @@ public class WorkoutHubFragment extends Fragment {
 
     private FragmentWorkoutHubBinding binding;
     private WorkoutHubViewModel viewModel;
-    private WorkoutProgramAdapter programAdapter;
-    private boolean showingAllPrograms = false;
+    private WorkoutProgramAdapter myProgramsAdapter;
+    private WorkoutProgramAdapter beginnerAdapter;
+    private WorkoutProgramAdapter intermediateAdapter;
+    private WorkoutProgramAdapter proAdapter;
+    private WorkoutProgramAdapter eliteAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -57,8 +63,7 @@ public class WorkoutHubFragment extends Fragment {
     }
 
     private void setupRecyclerViews() {
-        // Single adapter that can show either active or all programs
-        programAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
+        WorkoutProgramAdapter.OnProgramClickListener listener = new WorkoutProgramAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
                 // Show program preview for presets, navigate to editor for user programs
@@ -83,68 +88,83 @@ public class WorkoutHubFragment extends Fragment {
                     navigateToWorkoutDaySelection(program.getProgramId(), program.getProgramName());
                 }
             }
-        });
-        binding.recyclerPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerPrograms.setAdapter(programAdapter);
+        };
+
+        // My Programs
+        myProgramsAdapter = new WorkoutProgramAdapter(listener);
+        binding.recyclerMyPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerMyPrograms.setAdapter(myProgramsAdapter);
+
+        // Recommended Programs by difficulty
+        beginnerAdapter = new WorkoutProgramAdapter(listener);
+        binding.recyclerBeginnerPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerBeginnerPrograms.setAdapter(beginnerAdapter);
+
+        intermediateAdapter = new WorkoutProgramAdapter(listener);
+        binding.recyclerIntermediatePrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerIntermediatePrograms.setAdapter(intermediateAdapter);
+
+        proAdapter = new WorkoutProgramAdapter(listener);
+        binding.recyclerProPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerProPrograms.setAdapter(proAdapter);
+
+        eliteAdapter = new WorkoutProgramAdapter(listener);
+        binding.recyclerElitePrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerElitePrograms.setAdapter(eliteAdapter);
     }
 
     private void setupObservers() {
-        // Observe based on current tab
+        // Observe user programs
         viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
-            if (programs != null && !showingAllPrograms) {
-                programAdapter.submitList(programs);
-                binding.emptyState.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
-                binding.recyclerPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
+            if (programs != null) {
+                myProgramsAdapter.submitList(programs);
             }
         });
         
+        // Observe preset programs and filter by difficulty
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
-            if (programs != null && showingAllPrograms) {
-                programAdapter.submitList(programs);
-                binding.emptyState.setVisibility(View.GONE);
-                binding.recyclerPrograms.setVisibility(View.VISIBLE);
+            if (programs != null) {
+                List<WorkoutProgram> beginner = new ArrayList<>();
+                List<WorkoutProgram> intermediate = new ArrayList<>();
+                List<WorkoutProgram> pro = new ArrayList<>();
+                List<WorkoutProgram> elite = new ArrayList<>();
+
+                for (WorkoutProgram program : programs) {
+                    String difficulty = program.getDifficulty();
+                    if (difficulty == null) continue;
+                    
+                    switch (difficulty.toLowerCase()) {
+                        case "beginner":
+                            beginner.add(program);
+                            break;
+                        case "intermediate":
+                            intermediate.add(program);
+                            break;
+                        case "pro":
+                            pro.add(program);
+                            break;
+                        case "elite":
+                            elite.add(program);
+                            break;
+                    }
+                }
+
+                beginnerAdapter.submitList(beginner);
+                intermediateAdapter.submitList(intermediate);
+                proAdapter.submitList(pro);
+                eliteAdapter.submitList(elite);
             }
         });
     }
 
     private void setupListeners() {
-        binding.fabAddRoutine.setOnClickListener(v -> {
+        binding.buttonAddRoutine.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
         });
         
-        binding.buttonAddFirstProgram.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
-        });
-        
-        // Tab selection
-        binding.tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
-                showingAllPrograms = tab.getPosition() == 1;
-                if (showingAllPrograms) {
-                    viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
-                        if (programs != null) {
-                            programAdapter.submitList(programs);
-                            binding.emptyState.setVisibility(View.GONE);
-                            binding.recyclerPrograms.setVisibility(View.VISIBLE);
-                        }
-                    });
-                } else {
-                    viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
-                        if (programs != null) {
-                            programAdapter.submitList(programs);
-                            binding.emptyState.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
-                            binding.recyclerPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+        binding.iconSettings.setOnClickListener(v -> {
+            // Navigate to settings if needed
+            // Navigation.findNavController(v).navigate(R.id.action_to_settings);
         });
     }
 

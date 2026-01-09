@@ -67,34 +67,17 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
 
         public void bind(WorkoutProgram program, OnProgramClickListener listener) {
             binding.textProgramName.setText(program.getProgramName());
-            binding.textDescription.setText(program.getDescription());
             
-            // Show difficulty if present
-            if (program.getDifficulty() != null && !program.getDifficulty().isEmpty()) {
-                binding.layoutDifficulty.setVisibility(View.VISIBLE);
-                binding.textDifficulty.setText(program.getDifficulty());
-            } else {
-                binding.layoutDifficulty.setVisibility(View.GONE);
-            }
-            
-            // Show duration if present
-            if (program.getDurationWeeks() > 0) {
-                binding.textDuration.setVisibility(View.VISIBLE);
-                binding.textDuration.setText(program.getDurationWeeks() + " weeks");
-            } else {
-                binding.textDuration.setVisibility(View.GONE);
-            }
-            
-            binding.textDaysPerWeek.setText(program.getDaysPerWeek() + " days/week");
+            // Format info text: "3x per week • 1 workout days"
+            String infoText = program.getDaysPerWeek() + "x per week • " + 
+                            "1 workout days"; // TODO: Get actual workout day count
+            binding.textInfo.setText(infoText);
 
             // Click on card to view details or edit
             binding.cardProgram.setOnClickListener(v -> listener.onProgramClick(program));
             
-            // Long click to start workout
-            binding.cardProgram.setOnLongClickListener(v -> {
-                listener.onStartWorkoutClick(program);
-                return true;
-            });
+            // Play button click to start workout
+            binding.buttonPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
         }
     }
 }
