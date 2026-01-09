@@ -19,9 +19,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * WorkoutHubFragment displays user's programs and recommended programs in a single scrollable view.
@@ -77,7 +76,7 @@ public class WorkoutHubFragment extends Fragment {
         binding.recyclerMyPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerMyPrograms.setAdapter(myProgramsAdapter);
 
-        // Recommended Programs Adapter (with difficulty grouping)
+        // Recommended Programs Adapter (sorted by difficulty)
         recommendedProgramsAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
@@ -108,45 +107,42 @@ public class WorkoutHubFragment extends Fragment {
             }
         });
         
-        // Observe preset programs (for recommended section)
+        // Observe preset programs (for recommended section) and sort by difficulty
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
             if (programs != null) {
-                // Group programs by difficulty and create a list with headers
-                List<WorkoutProgram> groupedPrograms = groupProgramsByDifficulty(programs);
-                recommendedProgramsAdapter.submitList(groupedPrograms);
+                List<WorkoutProgram> sortedPrograms = sortProgramsByDifficulty(programs);
+                recommendedProgramsAdapter.submitList(sortedPrograms);
             }
         });
     }
 
     /**
-     * Group programs by difficulty level with section headers.
-     * Returns a list where header items have a special marker.
+     * Sort programs by difficulty level (Beginner, Intermediate, Advanced/Pro, Elite).
      */
-    private List<WorkoutProgram> groupProgramsByDifficulty(List<WorkoutProgram> programs) {
-        List<WorkoutProgram> result = new ArrayList<>();
-        Map<String, List<WorkoutProgram>> grouped = new HashMap<>();
-        
-        // Group by difficulty
-        for (WorkoutProgram program : programs) {
-            String difficulty = program.getDifficulty();
-            if (difficulty == null) difficulty = "beginner";
-            difficulty = difficulty.toLowerCase();
-            
-            if (!grouped.containsKey(difficulty)) {
-                grouped.put(difficulty, new ArrayList<>());
+    private List<WorkoutProgram> sortProgramsByDifficulty(List<WorkoutProgram> programs) {
+        List<WorkoutProgram> sorted = new ArrayList<>(programs);
+        sorted.sort(new Comparator<WorkoutProgram>() {
+            @Override
+            public int compare(WorkoutProgram p1, WorkoutProgram p2) {
+                return getDifficultyOrder(p1.getDifficulty()) - getDifficultyOrder(p2.getDifficulty());
             }
-            grouped.get(difficulty).add(program);
+        });
+        return sorted;
+    }
+
+    /**
+     * Get numeric order for difficulty levels for sorting.
+     */
+    private int getDifficultyOrder(String difficulty) {
+        if (difficulty == null) return 0;
+        switch (difficulty.toLowerCase()) {
+            case "beginner": return 0;
+            case "intermediate": return 1;
+            case "advanced":
+            case "pro": return 2;
+            case "elite": return 3;
+            default: return 0;
         }
-        
-        // Add in order: Beginner, Intermediate, Pro, Elite
-        String[] difficultyOrder = {"beginner", "intermediate", "pro", "advanced", "elite"};
-        for (String difficulty : difficultyOrder) {
-            if (grouped.containsKey(difficulty) && !grouped.get(difficulty).isEmpty()) {
-                result.addAll(grouped.get(difficulty));
-            }
-        }
-        
-        return result;
     }
 
     private void setupListeners() {

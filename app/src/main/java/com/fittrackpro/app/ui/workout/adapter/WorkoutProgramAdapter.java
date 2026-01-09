@@ -71,8 +71,10 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
             binding.textProgramName.setText(program.getProgramName());
             
             // Frequency info (e.g., "3x per week • 3 workout days")
+            // For now, use daysPerWeek for both until we have actual workout day count
+            int workoutDays = program.getDaysPerWeek(); // This would come from actual workout days count
             String frequencyInfo = program.getDaysPerWeek() + "x per week • " + 
-                                 program.getDaysPerWeek() + " workout days";
+                                 workoutDays + " workout days";
             binding.textFrequencyInfo.setText(frequencyInfo);
             
             // Show difficulty badge for preset programs
