@@ -42,6 +42,7 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
                     return oldItem.getProgramId().equals(newItem.getProgramId()) &&
                             oldItem.getProgramName().equals(newItem.getProgramName()) &&
                             Objects.equals(oldItem.getDescription(), newItem.getDescription()) &&
+                            oldItem.getDaysPerWeek() == newItem.getDaysPerWeek() &&
                             oldItem.isPreset() == newItem.isPreset();
                 }
             };
@@ -85,9 +86,6 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
             } else {
                 binding.textDescription.setVisibility(View.GONE);
             }
-            
-            // layoutInfo should remain visible (it contains days/week info)
-            binding.layoutInfo.setVisibility(View.VISIBLE);
             
             // Set days per week
             binding.textDaysPerWeek.setText(program.getDaysPerWeek() + " days/week");
