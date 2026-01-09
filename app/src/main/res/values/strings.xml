@@ -66,12 +66,36 @@
 
     <!-- Workout -->
     <string name="add_routine">Add Routine</string>
-    <string name="choose_program_type">Choose how to create your program</string>
-    <string name="use_preset_program">Use Preset Program</string>
-    <string name="use_preset_description">Choose from professionally designed programs</string>
-    <string name="create_custom_program">Create Custom Program</string>
-    <string name="create_custom_description">Build your own program from scratch</string>
-    <string name="preset_programs">Preset Programs</string>
+    <string name="choose_program_type">Choose how you\'d like to start</string>
+    <string name="use_preset_program">Start from Preset</string>
+    <string name="use_preset_description">Choose from expertly designed programs tailored to your experience level. You can customize them after duplication.</string>
+    <string name="create_custom_program">Build from Scratch</string>
+    <string name="create_custom_description">Create a completely custom routine from the ground up. Perfect if you have specific training needs.</string>
+    <string name="preset_programs">Choose a Preset</string>
+    <string name="workout_subtitle">Choose a program or create your own</string>
+    <string name="my_programs">My Programs</string>
+    <string name="recommended_programs">Recommended Programs</string>
+    <string name="no_programs_created">You haven\'t created any programs yet</string>
+    <string name="create_first_program">+ Create Your First Program</string>
+    <string name="add_new_routine">Add New Routine</string>
+    <string name="choose_preset_subtitle">Select a program that matches your level</string>
+    
+    <!-- Difficulty Levels -->
+    <string name="difficulty_beginner">Beginner</string>
+    <string name="difficulty_intermediate">Intermediate</string>
+    <string name="difficulty_pro">Pro</string>
+    <string name="difficulty_elite">Elite</string>
+    <string name="difficulty_beginner_desc">New to weightlifting or returning after a long break</string>
+    <string name="difficulty_intermediate_desc">6+ months of consistent training experience</string>
+    <string name="difficulty_pro_desc">2+ years of training with solid strength foundation</string>
+    <string name="difficulty_elite_desc">Advanced lifters focused on powerlifting or competition</string>
+    
+    <!-- Preset Programs -->
+    <string name="program_full_body_starter">Full Body Starter</string>
+    <string name="program_push_pull_legs">Push Pull Legs</string>
+    <string name="program_strength_hypertrophy">Strength &amp; Hypertrophy</string>
+    <string name="program_elite_powerbuilding">Elite Powerbuilding</string>
+    <string name="workout_days_format">%1$dx per week • %2$d workout days</string>
     <string name="program_name">Program Name</string>
     <string name="description">Description</string>
     <string name="difficulty">Difficulty</string>
