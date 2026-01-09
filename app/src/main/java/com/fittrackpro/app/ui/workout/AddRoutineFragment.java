@@ -30,6 +30,10 @@ public class AddRoutineFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.textBack.setOnClickListener(v -> {
+            requireActivity().onBackPressed();
+        });
+
         binding.cardUsePreset.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_addRoutine_to_presetList);
         });
