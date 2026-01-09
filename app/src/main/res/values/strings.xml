@@ -137,10 +137,6 @@
     <string name="add_routine_title">Add Routine</string>
     
     <!-- Workout - New Strings for Complete UI -->
-    <string name="workout_subtitle">Choose a program or create your own</string>
-    <string name="my_programs">My Programs</string>
-    <string name="recommended_programs">Recommended Programs</string>
-    <string name="add_new_routine">Add New Routine</string>
     <string name="add_new_routine_subtitle">Choose how you\'d like to start</string>
     <string name="start_from_preset">Start from Preset</string>
     <string name="start_from_preset_description">Choose from expertly designed programs tailored to your experience level. You can customize them after duplication.</string>

@@ -8,29 +8,23 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.fittrackpro.app.databinding.ItemProgramCardBinding;
+import com.fittrackpro.app.databinding.ItemRecommendedProgramBinding;
 import com.fittrackpro.app.data.model.WorkoutProgram;
 
 /**
- * Adapter for displaying workout programs in Browse Programs tab
+ * Adapter for displaying recommended (preset) programs
  */
-public class ProgramAdapter extends ListAdapter<WorkoutProgram, ProgramAdapter.ProgramViewHolder> {
+public class RecommendedProgramAdapter extends ListAdapter<WorkoutProgram, RecommendedProgramAdapter.ViewHolder> {
 
     private final OnProgramClickListener listener;
-    private final boolean isPresetProgram;
 
     public interface OnProgramClickListener {
         void onProgramClick(WorkoutProgram program);
     }
 
-    public ProgramAdapter(OnProgramClickListener listener) {
-        this(listener, true);
-    }
-
-    public ProgramAdapter(OnProgramClickListener listener, boolean isPresetProgram) {
+    public RecommendedProgramAdapter(OnProgramClickListener listener) {
         super(DIFF_CALLBACK);
         this.listener = listener;
-        this.isPresetProgram = isPresetProgram;
     }
 
     private static final DiffUtil.ItemCallback<WorkoutProgram> DIFF_CALLBACK =
@@ -45,43 +39,46 @@ public class ProgramAdapter extends ListAdapter<WorkoutProgram, ProgramAdapter.P
                 public boolean areContentsTheSame(@NonNull WorkoutProgram oldItem,
                                                    @NonNull WorkoutProgram newItem) {
                     return oldItem.getProgramName().equals(newItem.getProgramName()) &&
-                           oldItem.getDescription().equals(newItem.getDescription()) &&
-                           oldItem.getDifficulty().equals(newItem.getDifficulty());
+                           oldItem.getDaysPerWeek() == newItem.getDaysPerWeek();
                 }
             };
 
     @NonNull
     @Override
-    public ProgramViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemProgramCardBinding binding = ItemProgramCardBinding.inflate(
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        ItemRecommendedProgramBinding binding = ItemRecommendedProgramBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-        return new ProgramViewHolder(binding);
+        return new ViewHolder(binding);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProgramViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getItem(position), listener);
     }
 
-    static class ProgramViewHolder extends RecyclerView.ViewHolder {
-        private final ItemProgramCardBinding binding;
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        private final ItemRecommendedProgramBinding binding;
 
-        public ProgramViewHolder(@NonNull ItemProgramCardBinding binding) {
+        public ViewHolder(@NonNull ItemRecommendedProgramBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
         public void bind(WorkoutProgram program, OnProgramClickListener listener) {
             binding.textProgramName.setText(program.getProgramName());
-            binding.textDescription.setText(program.getDescription());
-            binding.textDuration.setText(program.getDurationWeeks() + " weeks");
-            binding.textFrequency.setText(program.getDaysPerWeek() + " days/week");
             
-            // Set focus areas (if available)
-            // For now, we'll use the difficulty as a placeholder
-            binding.textFocusAreas.setText("Difficulty: " + program.getDifficulty());
+            // Format info text: "3x per week • 3 workout days"
+            String info = program.getDaysPerWeek() + "x per week • " + 
+                         program.getDaysPerWeek() + " workout days";
+            binding.textInfo.setText(info);
 
-            binding.buttonStart.setOnClickListener(v -> {
+            binding.buttonPlay.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onProgramClick(program);
+                }
+            });
+            
+            binding.getRoot().setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onProgramClick(program);
                 }

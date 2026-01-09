@@ -51,7 +51,10 @@ public class BrowseProgramsFragment extends Fragment {
                             tab.setText("Intermediate");
                             break;
                         case 2:
-                            tab.setText("Advanced");
+                            tab.setText("Pro");
+                            break;
+                        case 3:
+                            tab.setText("Elite");
                             break;
                     }
                 }
@@ -86,7 +89,10 @@ public class BrowseProgramsFragment extends Fragment {
                     difficulty = "Intermediate";
                     break;
                 case 2:
-                    difficulty = "Advanced";
+                    difficulty = "Pro";
+                    break;
+                case 3:
+                    difficulty = "Elite";
                     break;
                 default:
                     difficulty = "Beginner";
@@ -96,7 +102,7 @@ public class BrowseProgramsFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return 3; // Beginner, Intermediate, Advanced
+            return 4; // Beginner, Intermediate, Pro, Elite
         }
     }
 }

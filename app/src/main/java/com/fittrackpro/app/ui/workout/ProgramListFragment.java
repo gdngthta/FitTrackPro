@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,7 +64,17 @@ public class ProgramListFragment extends Fragment {
     private void setupRecyclerView() {
         programAdapter = new ProgramAdapter(program -> {
             // Handle program click - start program
-            viewModel.startProgram(program);
+            viewModel.startProgram(program).observe(getViewLifecycleOwner(), success -> {
+                if (success != null && success) {
+                    Toast.makeText(requireContext(), 
+                        "Program added successfully!", 
+                        Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), 
+                        "Failed to add program. Please try again.", 
+                        Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         binding.recyclerPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
