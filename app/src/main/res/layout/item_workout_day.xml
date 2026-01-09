@@ -6,8 +6,14 @@
     android:id="@+id/cardDay"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardElevation="2dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/colorSurface"
+    app:cardElevation="0dp"
     app:cardCornerRadius="12dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,39 +21,58 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- Day Number and Name -->
         <TextView
-            android:id="@+id/textDayNumber"
-            android:layout_width="wrap_content"
+            android:id="@+id/textDayLabel"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:textColor="?attr/colorPrimary"
+            android:textSize="18sp"
             android:textStyle="bold"
-            tools:text="Day 1"
+            tools:text="Day 1  workout day name"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iconDelete" />
 
+        <!-- Exercise Count -->
         <TextView
-            android:id="@+id/textDayName"
+            android:id="@+id/textExerciseCount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnSurface"
-            tools:text="Push Day"
-            app:layout_constraintTop_toBottomOf="@id/textDayNumber"
+            android:textSize="14sp"
+            android:textColor="@color/colorOnSurfaceSecondary"
+            tools:text="0 exercises"
+            app:layout_constraintTop_toBottomOf="@id/textDayLabel"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/iconChevron" />
+            app:layout_constraintEnd_toStartOf="@id/iconDelete" />
 
+        <!-- Delete Icon -->
         <ImageView
-            android:id="@+id/iconChevron"
+            android:id="@+id/iconDelete"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@drawable/ic_chevron_right"
-            android:contentDescription="@string/view_details"
-            app:tint="?attr/colorOnSurfaceVariant"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="@string/delete"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/colorOnSurfaceSecondary"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iconEdit" />
+
+        <!-- Edit Icon -->
+        <ImageView
+            android:id="@+id/iconEdit"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="12dp"
+            android:src="@android:drawable/ic_menu_edit"
+            android:contentDescription="@string/edit"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/colorOnSurfaceSecondary"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
