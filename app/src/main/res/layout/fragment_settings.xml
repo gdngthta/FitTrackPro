@@ -11,40 +11,113 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
+        <!-- Header -->
+        <ImageButton
+            android:id="@+id/buttonBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_back"
+            android:contentDescription="@string/cancel"
+            app:tint="?attr/colorOnBackground"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
         <TextView
             android:id="@+id/textTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/settings"
-            android:textSize="24sp"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="?attr/colorOnBackground"
-            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="8dp"
+            app:layout_constraintTop_toTopOf="@id/buttonBack"
+            app:layout_constraintBottom_toBottomOf="@id/buttonBack"
+            app:layout_constraintStart_toEndOf="@id/buttonBack"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/textSubtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="56dp"
+            android:text="@string/settings_subtitle"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintTop_toBottomOf="@id/buttonBack"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Units Section -->
+        <!-- Measurement Units Section -->
         <TextView
             android:id="@+id/textUnitsHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/units"
+            android:text="@string/measurement_units"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/textTitle"
+            android:textColor="?attr/colorOnBackground"
+            app:layout_constraintTop_toBottomOf="@id/textSubtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/layoutUnitToggle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            app:layout_constraintTop_toBottomOf="@id/textUnitsHeader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonMetric"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="@string/metric_units"
+                android:textSize="14sp"
+                style="@style/Widget.Material3.Button.TonalButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonImperial"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="@string/imperial_units"
+                android:textSize="14sp"
+                style="@style/Widget.Material3.Button.OutlinedButton" />
+        </LinearLayout>
+
+        <!-- Preferences Section -->
+        <TextView
+            android:id="@+id/textPreferencesHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/preferences"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnBackground"
+            app:layout_constraintTop_toBottomOf="@id/layoutUnitToggle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardWeightUnit"
+            android:id="@+id/cardPreferences"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:cardElevation="1dp"
-            app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@id/textUnitsHeader"
+            app:cardCornerRadius="12dp"
+            app:layout_constraintTop_toBottomOf="@id/textPreferencesHeader"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -54,6 +127,7 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <!-- Workout Reminders -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,115 +143,124 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/weight_unit"
-                            android:textSize="14sp"
+                            android:text="@string/workout_reminders"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="?attr/colorOnSurface" />
 
                         <TextView
-                            android:id="@+id/textWeightUnitStatus"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:text="@string/kilograms"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/workout_reminders_desc"
                             android:textSize="12sp"
                             android:textColor="?attr/colorOnSurfaceVariant" />
                     </LinearLayout>
 
                     <com.google.android.material.switchmaterial.SwitchMaterial
-                        android:id="@+id/switchWeightUnit"
+                        android:id="@+id/switchWorkoutReminders"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginVertical="12dp"
+                    android:background="?attr/colorOutline" />
+
+                <!-- Show Equivalence -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/show_equivalence"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/show_equivalence_subtitle"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+                    </LinearLayout>
+
+                    <com.google.android.material.switchmaterial.SwitchMaterial
+                        android:id="@+id/switchShowEquivalence"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Display Section -->
+        <!-- Account Section -->
         <TextView
-            android:id="@+id/textDisplayHeader"
+            android:id="@+id/textAccountHeader"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="@string/display"
+            android:text="@string/account"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/cardWeightUnit"
+            android:textColor="?attr/colorOnBackground"
+            app:layout_constraintTop_toBottomOf="@id/cardPreferences"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardEquivalence"
+            android:id="@+id/cardAccount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:cardElevation="1dp"
-            app:cardCornerRadius="8dp"
-            app:layout_constraintTop_toBottomOf="@id/textDisplayHeader"
+            app:cardCornerRadius="12dp"
+            app:layout_constraintTop_toBottomOf="@id/textAccountHeader"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonLogout"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="@string/log_out"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_logout"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/show_equivalence"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:textColor="?attr/colorOnSurface" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="@string/show_equivalence_description"
-                        android:textSize="12sp"
-                        android:textColor="?attr/colorOnSurfaceVariant" />
-                </LinearLayout>
-
-                <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/switchShowEquivalence"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonDeleteAccount"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/delete_account"
+                    android:textSize="16sp"
+                    android:backgroundTint="#F44336"
+                    app:icon="@drawable/ic_trash"
+                    app:iconGravity="start"
+                    style="@style/Widget.Material3.Button" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <!-- Nutrition Section -->
-        <TextView
-            android:id="@+id/textNutritionHeader"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/nutrition"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
-            app:layout_constraintTop_toBottomOf="@id/cardEquivalence"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonEditNutrition"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/edit_nutrition_profile"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            app:layout_constraintTop_toBottomOf="@id/textNutritionHeader"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
