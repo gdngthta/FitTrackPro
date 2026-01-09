@@ -75,22 +75,22 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
             // Set program name
             binding.textProgramName.setText(program.getProgramName());
             
-            // Show/hide preset chip
-            binding.chipPreset.setVisibility(program.isPreset() ? View.VISIBLE : View.GONE);
-            
-            // Set description
+            // Set description or days per week in textInfo
             String description = program.getDescription();
             if (description != null && !description.isEmpty()) {
-                binding.textDescription.setText(description);
-                binding.textDescription.setVisibility(View.VISIBLE);
+                binding.textInfo.setText(description);
             } else {
-                binding.textDescription.setVisibility(View.GONE);
+                binding.textInfo.setText(program.getDaysPerWeek() + " days/week");
             }
             
-            // Set days per week
-            binding.textDaysPerWeek.setText(program.getDaysPerWeek() + " days/week");
+            // Set click listener on the play button
+            binding.buttonPlay.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onStartWorkoutClick(program);
+                }
+            });
             
-            // Set click listener on the card itself (not a button)
+            // Also set click listener on the card itself
             binding.cardProgram.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onStartWorkoutClick(program);
