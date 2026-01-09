@@ -27,10 +27,6 @@ public class ProgramAdapter extends ListAdapter<WorkoutProgram, ProgramAdapter.P
         this(listener, true);
     }
 
-    public ProgramAdapter(OnProgramClickListener listener) {
-        this(listener, true);
-    }
-
     public ProgramAdapter(OnProgramClickListener listener, boolean isPresetProgram) {
         super(DIFF_CALLBACK);
         this.listener = listener;

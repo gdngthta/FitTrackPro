@@ -95,9 +95,7 @@
                 app:cardElevation="0dp"
                 app:cardCornerRadius="12dp"
                 app:strokeWidth="2dp"
-                app:strokeColor="@color/colorBorder"
-                app:dashGap="4dp"
-                app:dashWidth="8dp">
+                app:strokeColor="@color/colorBorder">
 
                 <TextView
                     android:layout_width="match_parent"
