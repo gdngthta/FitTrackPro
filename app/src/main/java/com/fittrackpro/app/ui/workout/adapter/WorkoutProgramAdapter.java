@@ -13,6 +13,7 @@ import com.fittrackpro.app.data.model.WorkoutProgram;
 
 /**
  * Adapter for displaying workout programs.
+ * Supports simplified card layout with play button.
  */
 public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutProgramAdapter.ProgramViewHolder> {
 
@@ -37,7 +38,7 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
 
                 @Override
                 public boolean areContentsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return oldItem. getProgramId().equals(newItem.getProgramId()) &&
+                    return oldItem.getProgramId().equals(newItem.getProgramId()) &&
                             oldItem.getProgramName().equals(newItem.getProgramName()) &&
                             oldItem.isActive() == newItem.isActive();
                 }
@@ -66,30 +67,29 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
         }
 
         public void bind(WorkoutProgram program, OnProgramClickListener listener) {
+            // Program name
             binding.textProgramName.setText(program.getProgramName());
             
-            // Format workout details
-            String details = String.format("%dx per week • %d workout days", 
-                program.getDaysPerWeek(), program.getDaysPerWeek());
-            binding.textWorkoutDetails.setText(details);
+            // Frequency info (e.g., "3x per week • 3 workout days")
+            // For now, use daysPerWeek for both until we have actual workout day count
+            int workoutDays = program.getDaysPerWeek(); // This would come from actual workout days count
+            String frequencyInfo = program.getDaysPerWeek() + "x per week • " + 
+                                 workoutDays + " workout days";
+            binding.textFrequencyInfo.setText(frequencyInfo);
             
-            // Hide description by default for compact view
-            binding.textDescription.setVisibility(View.GONE);
-            
-            // Show difficulty if present (but hide the layout for new design)
-            binding.layoutDifficulty.setVisibility(View.GONE);
-            
-            // Hide duration for new design
-            binding.textDuration.setVisibility(View.GONE);
-            
-            // Hide info layout for new design
-            binding.layoutInfo.setVisibility(View.GONE);
+            // Show difficulty badge for preset programs
+            if (program.isPreset() && program.getDifficulty() != null && !program.getDifficulty().isEmpty()) {
+                binding.textDifficulty.setVisibility(View.VISIBLE);
+                binding.textDifficulty.setText(program.getDifficulty().toUpperCase());
+            } else {
+                binding.textDifficulty.setVisibility(View.GONE);
+            }
 
-            // Click on card to view details or edit
+            // Click on card to view details
             binding.cardProgram.setOnClickListener(v -> listener.onProgramClick(program));
             
             // Click on play button to start workout
-            binding.buttonPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
+            binding.iconPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
         }
     }
 }

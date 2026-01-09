@@ -15,19 +15,22 @@ import com.fittrackpro.app.R;
 import com.fittrackpro.app.databinding.FragmentWorkoutHubBinding;
 import com.fittrackpro.app.data.model.WorkoutProgram;
 import com.fittrackpro.app.ui.workout.adapter.WorkoutProgramAdapter;
-import com.fittrackpro.app.ui.workout.adapter.RecommendedProgramsAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 /**
- * WorkoutHubFragment displays user programs and recommended programs.
+ * WorkoutHubFragment displays user's programs and recommended programs in a single scrollable view.
  */
 public class WorkoutHubFragment extends Fragment {
 
     private FragmentWorkoutHubBinding binding;
     private WorkoutHubViewModel viewModel;
     private WorkoutProgramAdapter myProgramsAdapter;
-    private RecommendedProgramsAdapter recommendedProgramsAdapter;
+    private WorkoutProgramAdapter recommendedProgramsAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -58,28 +61,25 @@ public class WorkoutHubFragment extends Fragment {
     }
 
     private void setupRecyclerViews() {
-        // My Programs adapter
+        // My Programs Adapter
         myProgramsAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
-                // Navigate to program editor for user programs
                 navigateToProgramEditor(program.getProgramId());
             }
 
             @Override
             public void onStartWorkoutClick(WorkoutProgram program) {
-                // Start user program directly
                 navigateToWorkoutDaySelection(program.getProgramId(), program.getProgramName());
             }
         });
         binding.recyclerMyPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerMyPrograms.setAdapter(myProgramsAdapter);
-        
-        // Recommended Programs adapter
-        recommendedProgramsAdapter = new RecommendedProgramsAdapter(new RecommendedProgramsAdapter.OnProgramClickListener() {
+
+        // Recommended Programs Adapter (sorted by difficulty)
+        recommendedProgramsAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
-                // Show program preview for presets
                 showProgramPreviewDialog(program);
             }
 
@@ -102,39 +102,51 @@ public class WorkoutHubFragment extends Fragment {
         viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
             if (programs != null) {
                 myProgramsAdapter.submitList(programs);
-                
-                // Show/hide empty state
-                if (programs.isEmpty()) {
-                    binding.recyclerMyPrograms.setVisibility(View.GONE);
-                    binding.cardEmptyState.setVisibility(View.VISIBLE);
-                } else {
-                    binding.recyclerMyPrograms.setVisibility(View.VISIBLE);
-                    binding.cardEmptyState.setVisibility(View.GONE);
-                }
+                binding.emptyStateMyPrograms.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.recyclerMyPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
         
-        // Observe preset programs
+        // Observe preset programs (for recommended section) and sort by difficulty
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
             if (programs != null) {
-                recommendedProgramsAdapter.setPrograms(programs);
+                List<WorkoutProgram> sortedPrograms = sortProgramsByDifficulty(programs);
+                recommendedProgramsAdapter.submitList(sortedPrograms);
             }
         });
     }
 
+    /**
+     * Sort programs by difficulty level (Beginner, Intermediate, Advanced/Pro, Elite).
+     */
+    private List<WorkoutProgram> sortProgramsByDifficulty(List<WorkoutProgram> programs) {
+        List<WorkoutProgram> sorted = new ArrayList<>(programs);
+        sorted.sort(new Comparator<WorkoutProgram>() {
+            @Override
+            public int compare(WorkoutProgram p1, WorkoutProgram p2) {
+                return getDifficultyOrder(p1.getDifficulty()) - getDifficultyOrder(p2.getDifficulty());
+            }
+        });
+        return sorted;
+    }
+
+    /**
+     * Get numeric order for difficulty levels for sorting.
+     */
+    private int getDifficultyOrder(String difficulty) {
+        if (difficulty == null) return 0;
+        switch (difficulty.toLowerCase()) {
+            case "beginner": return 0;
+            case "intermediate": return 1;
+            case "advanced":
+            case "pro": return 2;
+            case "elite": return 3;
+            default: return 0;
+        }
+    }
+
     private void setupListeners() {
-        // Settings button
-        binding.buttonSettings.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_settings);
-        });
-        
-        // Add Routine button
         binding.buttonAddRoutine.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
-        });
-        
-        // Create First Program button
-        binding.buttonCreateFirstProgram.setOnClickListener(v -> {
             Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
         });
     }
@@ -146,7 +158,15 @@ public class WorkoutHubFragment extends Fragment {
                     "Difficulty: " + program.getDifficulty() + "\n" +
                     "Duration: " + program.getDurationWeeks() + " weeks\n" +
                     "Days per week: " + program.getDaysPerWeek())
-            .setPositiveButton(android.R.string.ok, null)
+            .setPositiveButton("Add to My Programs", (dialog, which) -> {
+                // Duplicate preset
+                viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
+                    if (newProgramId != null) {
+                        // Show success message or navigate
+                    }
+                });
+            })
+            .setNegativeButton(android.R.string.cancel, null)
             .show();
     }
 
