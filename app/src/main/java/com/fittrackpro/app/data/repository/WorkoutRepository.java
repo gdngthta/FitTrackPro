@@ -663,6 +663,106 @@ public class WorkoutRepository {
     }
 
     /**
+     * Add preset program to user by duplicating it and activating it
+     */
+    public LiveData<Boolean> addPresetProgramToUser(String presetId, String userId) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        // Duplicate the preset program and activate it
+        duplicatePresetProgram(presetId, userId).observeForever(newProgramId -> {
+            if (newProgramId != null) {
+                Log.d("WorkoutRepository", "Program added successfully: " + newProgramId);
+                result.setValue(true);
+            } else {
+                Log.e("WorkoutRepository", "Failed to add program - duplication returned null");
+                result.setValue(false);
+            }
+        });
+
+        return result;
+    }
+
+    /**
+     * Initialize preset programs with correct difficulty levels
+     */
+    public void initializePresetPrograms() {
+        // Define preset programs with correct difficulties
+        Object[][] presets = {
+            {"Full Body Starter", "Beginner", 3, 12, 
+                "Perfect for newcomers. Balanced full-body workouts to build foundational strength."},
+            {"Push Pull Legs", "Intermediate", 4, 12,
+                "Split training targeting specific muscle groups. Ideal for 6+ months of training."},
+            {"Strength & Hypertrophy", "Pro", 5, 12,
+                "High-volume training combining strength and muscle building for experienced lifters."},
+            {"Elite Powerbuilding", "Elite", 6, 12,
+                "Advanced periodized training for elite athletes. Maximum strength and size gains."}
+        };
+
+        for (Object[] preset : presets) {
+            String name = (String) preset[0];
+            String difficulty = (String) preset[1];
+            int daysPerWeek = (int) preset[2];
+            int durationWeeks = (int) preset[3];
+            String description = (String) preset[4];
+
+            // Check if program already exists
+            firestore.collection("workoutPrograms")
+                    .whereEqualTo("programName", name)
+                    .whereEqualTo("isPreset", true)
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        if (querySnapshot.isEmpty()) {
+                            // Create new preset program
+                            createPresetProgram(name, difficulty, daysPerWeek, durationWeeks, description);
+                        } else {
+                            // Update existing program's difficulty
+                            for (com.google.firebase.firestore.QueryDocumentSnapshot doc : querySnapshot) {
+                                firestore.collection("workoutPrograms")
+                                        .document(doc.getId())
+                                        .update("difficulty", difficulty, "daysPerWeek", daysPerWeek, 
+                                                "description", description, "updatedAt", Timestamp.now())
+                                        .addOnSuccessListener(aVoid -> 
+                                            Log.d("WorkoutRepository", "Updated preset: " + name + " -> " + difficulty))
+                                        .addOnFailureListener(e -> 
+                                            Log.e("WorkoutRepository", "Failed to update: " + name, e));
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> 
+                        Log.e("WorkoutRepository", "Failed to check existing preset: " + name, e));
+        }
+    }
+
+    /**
+     * Create a new preset program
+     */
+    private void createPresetProgram(String name, String difficulty, int daysPerWeek, 
+                                    int durationWeeks, String description) {
+        String programId = firestore.collection("workoutPrograms").document().getId();
+
+        WorkoutProgram program = new WorkoutProgram();
+        program.setProgramId(programId);
+        program.setUserId(null); // Preset programs have no owner
+        program.setProgramName(name);
+        program.setDescription(description);
+        program.setDifficulty(difficulty);
+        program.setDurationWeeks(durationWeeks);
+        program.setDaysPerWeek(daysPerWeek);
+        program.setPreset(true);
+        program.setActive(false);
+        program.setCreatedAt(Timestamp.now());
+        program.setUpdatedAt(Timestamp.now());
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .set(program)
+                .addOnSuccessListener(aVoid -> 
+                    Log.d("WorkoutRepository", "Created preset: " + name + " -> " + difficulty))
+                .addOnFailureListener(e -> 
+                    Log.e("WorkoutRepository", "Failed to create preset: " + name, e));
+    }
+
+    /**
      * Activate a program for the user
      */
     public void activateProgram(String programId, String userId) {

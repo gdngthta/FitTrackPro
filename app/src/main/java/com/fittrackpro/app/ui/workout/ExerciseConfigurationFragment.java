@@ -1,6 +1,7 @@
 package com.fittrackpro.app.ui.workout;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +9,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.fittrackpro.app.R;
+import com.fittrackpro.app.data.local.AppDatabase;
+import com.fittrackpro.app.data.model.ProgramExercise;
+import com.fittrackpro.app.data.repository.WorkoutRepository;
 import com.fittrackpro.app.databinding.FragmentExerciseConfigurationBinding;
 import com.google.android.material.button.MaterialButton;
 
@@ -22,9 +27,12 @@ import java.util.List;
 public class ExerciseConfigurationFragment extends Fragment {
 
     private FragmentExerciseConfigurationBinding binding;
+    private String programId;
+    private String dayId;
     private String exerciseName;
     private String muscleGroup;
     private String equipment;
+    private WorkoutRepository workoutRepository;
     
     private int selectedSets = 3;
     private int selectedRepsMin = 10;
@@ -46,7 +54,13 @@ public class ExerciseConfigurationFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Initialize repository
+        AppDatabase database = AppDatabase.getInstance(requireContext());
+        workoutRepository = new WorkoutRepository(database);
+
         if (getArguments() != null) {
+            programId = getArguments().getString("programId");
+            dayId = getArguments().getString("dayId");
             exerciseName = getArguments().getString("exerciseName", "Exercise");
             muscleGroup = getArguments().getString("muscleGroup", "");
             equipment = getArguments().getString("equipment", "");
@@ -168,14 +182,37 @@ public class ExerciseConfigurationFragment extends Fragment {
     }
 
     private void addExercise() {
-        // TODO: Save exercise to repository and navigate back
-        Toast.makeText(requireContext(), 
-            "Added: " + exerciseName + " - " + selectedSets + " sets, " + 
-            selectedRepsMin + "-" + selectedRepsMax + " reps, " + 
-            selectedRestSeconds + "s rest", 
-            Toast.LENGTH_SHORT).show();
+        if (programId == null || dayId == null) {
+            Toast.makeText(requireContext(), "Error: Missing program or day information", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create ProgramExercise object
+        ProgramExercise exercise = new ProgramExercise();
+        exercise.setExerciseName(exerciseName);
+        exercise.setMuscleGroup(muscleGroup);
+        exercise.setEquipment(equipment);
+        exercise.setTargetSets(selectedSets);
+        exercise.setTargetRepsMin(selectedRepsMin);
+        exercise.setTargetRepsMax(selectedRepsMax);
+        exercise.setRestSeconds(selectedRestSeconds);
+        exercise.setOrderIndex(0); // Will be set properly by repository
         
-        requireActivity().onBackPressed();
+        // Save to repository
+        workoutRepository.addExercise(programId, dayId, exercise).observe(getViewLifecycleOwner(), success -> {
+            if (success != null && success) {
+                Log.d("ExerciseConfig", "Exercise added successfully: " + exerciseName);
+                Toast.makeText(requireContext(), 
+                    "Added: " + exerciseName, 
+                    Toast.LENGTH_SHORT).show();
+                requireActivity().onBackPressed();
+            } else {
+                Log.e("ExerciseConfig", "Failed to add exercise: " + exerciseName);
+                Toast.makeText(requireContext(), 
+                    "Failed to add exercise. Please try again.", 
+                    Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

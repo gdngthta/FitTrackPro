@@ -17,14 +17,24 @@ import com.fittrackpro.app.data.model.WorkoutProgram;
 public class ProgramAdapter extends ListAdapter<WorkoutProgram, ProgramAdapter.ProgramViewHolder> {
 
     private final OnProgramClickListener listener;
+    private final boolean isPresetProgram;
 
     public interface OnProgramClickListener {
         void onProgramClick(WorkoutProgram program);
     }
 
     public ProgramAdapter(OnProgramClickListener listener) {
+        this(listener, true);
+    }
+
+    public ProgramAdapter(OnProgramClickListener listener) {
+        this(listener, true);
+    }
+
+    public ProgramAdapter(OnProgramClickListener listener, boolean isPresetProgram) {
         super(DIFF_CALLBACK);
         this.listener = listener;
+        this.isPresetProgram = isPresetProgram;
     }
 
     private static final DiffUtil.ItemCallback<WorkoutProgram> DIFF_CALLBACK =
