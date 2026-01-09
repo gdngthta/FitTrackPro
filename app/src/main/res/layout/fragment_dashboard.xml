@@ -100,7 +100,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_marginTop="4dp"
-                            android:gravity="baseline">
+                            android:gravity="center_vertical">
 
                             <TextView
                                 android:id="@+id/textThisWeek"
@@ -169,7 +169,7 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:layout_marginTop="4dp"
-                            android:gravity="baseline">
+                            android:gravity="center_vertical">
 
                             <TextView
                                 android:id="@+id/textThisMonth"
