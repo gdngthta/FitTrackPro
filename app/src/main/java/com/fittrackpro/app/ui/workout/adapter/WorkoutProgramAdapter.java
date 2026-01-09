@@ -67,34 +67,29 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
 
         public void bind(WorkoutProgram program, OnProgramClickListener listener) {
             binding.textProgramName.setText(program.getProgramName());
-            binding.textDescription.setText(program.getDescription());
             
-            // Show difficulty if present
-            if (program.getDifficulty() != null && !program.getDifficulty().isEmpty()) {
-                binding.layoutDifficulty.setVisibility(View.VISIBLE);
-                binding.textDifficulty.setText(program.getDifficulty());
-            } else {
-                binding.layoutDifficulty.setVisibility(View.GONE);
-            }
+            // Format workout details
+            String details = String.format("%dx per week • %d workout days", 
+                program.getDaysPerWeek(), program.getDaysPerWeek());
+            binding.textWorkoutDetails.setText(details);
             
-            // Show duration if present
-            if (program.getDurationWeeks() > 0) {
-                binding.textDuration.setVisibility(View.VISIBLE);
-                binding.textDuration.setText(program.getDurationWeeks() + " weeks");
-            } else {
-                binding.textDuration.setVisibility(View.GONE);
-            }
+            // Hide description by default for compact view
+            binding.textDescription.setVisibility(View.GONE);
             
-            binding.textDaysPerWeek.setText(program.getDaysPerWeek() + " days/week");
+            // Show difficulty if present (but hide the layout for new design)
+            binding.layoutDifficulty.setVisibility(View.GONE);
+            
+            // Hide duration for new design
+            binding.textDuration.setVisibility(View.GONE);
+            
+            // Hide info layout for new design
+            binding.layoutInfo.setVisibility(View.GONE);
 
             // Click on card to view details or edit
             binding.cardProgram.setOnClickListener(v -> listener.onProgramClick(program));
             
-            // Long click to start workout
-            binding.cardProgram.setOnLongClickListener(v -> {
-                listener.onStartWorkoutClick(program);
-                return true;
-            });
+            // Click on play button to start workout
+            binding.buttonPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
         }
     }
 }

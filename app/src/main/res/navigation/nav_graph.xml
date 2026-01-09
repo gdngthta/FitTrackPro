@@ -23,6 +23,10 @@
         <action
             android:id="@+id/action_to_activeWorkout"
             app:destination="@id/activeWorkoutFragment" />
+
+        <action
+            android:id="@+id/action_to_settings"
+            app:destination="@id/settingsFragment" />
     </fragment>
 
     <fragment

@@ -14,7 +14,7 @@ import androidx.recyclerview.widget. LinearLayoutManager;
 
 import com.fittrackpro.app.databinding.FragmentPresetProgramListBinding;
 import com.fittrackpro.app.data.model.WorkoutProgram;
-import com.fittrackpro. app.ui.workout.adapter.WorkoutProgramAdapter;
+import com.fittrackpro.app.ui.workout.adapter.RecommendedProgramsAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 
 /**
@@ -24,7 +24,7 @@ public class PresetProgramListFragment extends Fragment {
 
     private FragmentPresetProgramListBinding binding;
     private WorkoutHubViewModel viewModel;
-    private WorkoutProgramAdapter adapter;
+    private RecommendedProgramsAdapter adapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -52,13 +52,13 @@ public class PresetProgramListFragment extends Fragment {
 
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
             if (programs != null) {
-                adapter. submitList(programs);
+                adapter.setPrograms(programs);
             }
         });
     }
 
     private void setupRecyclerView() {
-        adapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
+        adapter = new RecommendedProgramsAdapter(new RecommendedProgramsAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
                 // Show program details dialog
