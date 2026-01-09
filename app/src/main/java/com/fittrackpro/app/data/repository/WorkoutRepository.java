@@ -668,17 +668,27 @@ public class WorkoutRepository {
     public LiveData<Boolean> addPresetProgramToUser(String presetId, String userId) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
 
-        // Duplicate the preset program and activate it
-        duplicatePresetProgram(presetId, userId).observeForever(newProgramId -> {
-            if (newProgramId != null) {
-                Log.d("WorkoutRepository", "Program added successfully: " + newProgramId);
-                result.setValue(true);
-            } else {
-                Log.e("WorkoutRepository", "Failed to add program - duplication returned null");
-                result.setValue(false);
+        // Duplicate the preset program and activate it  
+        LiveData<String> duplicateResult = duplicatePresetProgram(presetId, userId);
+        
+        // Create a one-time observer
+        androidx.lifecycle.Observer<String> observer = new androidx.lifecycle.Observer<String>() {
+            @Override
+            public void onChanged(String newProgramId) {
+                if (newProgramId != null) {
+                    Log.d("WorkoutRepository", "Program added successfully: " + newProgramId);
+                    result.setValue(true);
+                } else {
+                    Log.e("WorkoutRepository", "Failed to add program - duplication returned null");
+                    result.setValue(false);
+                }
+                // Remove observer after first notification to prevent memory leaks
+                duplicateResult.removeObserver(this);
             }
-        });
-
+        };
+        
+        duplicateResult.observeForever(observer);
+        
         return result;
     }
 
