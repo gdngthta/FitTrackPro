@@ -34,13 +34,14 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
             new DiffUtil.ItemCallback<WorkoutProgram>() {
                 @Override
                 public boolean areItemsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return Objects.equals(oldItem.getProgramId(), newItem.getProgramId());
+                    return oldItem.getProgramId().equals(newItem.getProgramId());
                 }
 
                 @Override
                 public boolean areContentsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return Objects.equals(oldItem.getProgramId(), newItem.getProgramId()) &&
-                            Objects.equals(oldItem.getProgramName(), newItem.getProgramName()) &&
+                    return oldItem.getProgramId().equals(newItem.getProgramId()) &&
+                            oldItem.getProgramName().equals(newItem.getProgramName()) &&
+                            Objects.equals(oldItem.getDescription(), newItem.getDescription()) &&
                             oldItem.isPreset() == newItem.isPreset();
                 }
             };
