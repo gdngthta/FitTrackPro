@@ -74,15 +74,23 @@ public class SettingsFragment extends Fragment {
 
     private void updateUnitButtons() {
         if (isMetric) {
-            binding.buttonMetric.setBackgroundColor(getResources().getColor(R.color.md_theme_primary, null));
-            binding.buttonMetric.setTextColor(getResources().getColor(R.color.md_theme_onPrimary, null));
-            binding.buttonImperial.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
-            binding.buttonImperial.setTextColor(getResources().getColor(R.color.md_theme_onSurface, null));
+            // Metric is selected
+            binding.buttonMetric.setBackgroundTintList(
+                androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.md_theme_primary));
+            binding.buttonMetric.setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.md_theme_onPrimary));
+            binding.buttonImperial.setBackgroundTintList(null);
+            binding.buttonImperial.setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.md_theme_onSurface));
         } else {
-            binding.buttonImperial.setBackgroundColor(getResources().getColor(R.color.md_theme_primary, null));
-            binding.buttonImperial.setTextColor(getResources().getColor(R.color.md_theme_onPrimary, null));
-            binding.buttonMetric.setBackgroundColor(getResources().getColor(android.R.color.transparent, null));
-            binding.buttonMetric.setTextColor(getResources().getColor(R.color.md_theme_onSurface, null));
+            // Imperial is selected
+            binding.buttonImperial.setBackgroundTintList(
+                androidx.core.content.ContextCompat.getColorStateList(requireContext(), R.color.md_theme_primary));
+            binding.buttonImperial.setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.md_theme_onPrimary));
+            binding.buttonMetric.setBackgroundTintList(null);
+            binding.buttonMetric.setTextColor(
+                androidx.core.content.ContextCompat.getColor(requireContext(), R.color.md_theme_onSurface));
         }
     }
 
