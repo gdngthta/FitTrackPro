@@ -13,7 +13,6 @@ import com.fittrackpro.app.data.model.WorkoutProgram;
 
 /**
  * Adapter for displaying workout programs.
- * Supports simplified card layout with play button.
  */
 public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutProgramAdapter.ProgramViewHolder> {
 
@@ -38,7 +37,7 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
 
                 @Override
                 public boolean areContentsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return oldItem.getProgramId().equals(newItem.getProgramId()) &&
+                    return oldItem. getProgramId().equals(newItem.getProgramId()) &&
                             oldItem.getProgramName().equals(newItem.getProgramName()) &&
                             oldItem.isActive() == newItem.isActive();
                 }
@@ -67,29 +66,18 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
         }
 
         public void bind(WorkoutProgram program, OnProgramClickListener listener) {
-            // Program name
             binding.textProgramName.setText(program.getProgramName());
             
-            // Frequency info (e.g., "3x per week • 3 workout days")
-            // For now, use daysPerWeek for both until we have actual workout day count
-            int workoutDays = program.getDaysPerWeek(); // This would come from actual workout days count
-            String frequencyInfo = program.getDaysPerWeek() + "x per week • " + 
-                                 workoutDays + " workout days";
-            binding.textFrequencyInfo.setText(frequencyInfo);
-            
-            // Show difficulty badge for preset programs
-            if (program.isPreset() && program.getDifficulty() != null && !program.getDifficulty().isEmpty()) {
-                binding.textDifficulty.setVisibility(View.VISIBLE);
-                binding.textDifficulty.setText(program.getDifficulty().toUpperCase());
-            } else {
-                binding.textDifficulty.setVisibility(View.GONE);
-            }
+            // Format info text: "3x per week • 1 workout days"
+            String infoText = program.getDaysPerWeek() + "x per week • " + 
+                            "1 workout days"; // TODO: Get actual workout day count
+            binding.textInfo.setText(infoText);
 
-            // Click on card to view details
+            // Click on card to view details or edit
             binding.cardProgram.setOnClickListener(v -> listener.onProgramClick(program));
             
-            // Click on play button to start workout
-            binding.iconPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
+            // Play button click to start workout
+            binding.buttonPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
         }
     }
 }

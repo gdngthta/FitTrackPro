@@ -1,14 +1,20 @@
-package com.fittrackpro.app.ui.workout. adapter;
+package com.fittrackpro.app.ui.workout.adapter;
 
-import android.view. LayoutInflater;
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import androidx. recyclerview.widget.DiffUtil;
-import androidx.recyclerview. widget.ListAdapter;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.fittrackpro.app.R;
 import com.fittrackpro.app.databinding.ItemWorkoutDayBinding;
-import com.fittrackpro. app.data.model.WorkoutDay;
+import com.fittrackpro.app.data.model.WorkoutDay;
 
 /**
  * Adapter for workout days list.
@@ -19,6 +25,8 @@ public class WorkoutDayAdapter extends ListAdapter<WorkoutDay, WorkoutDayAdapter
 
     public interface OnDayClickListener {
         void onDayClick(WorkoutDay day);
+        void onEditClick(WorkoutDay day);
+        void onDeleteClick(WorkoutDay day);
     }
 
     public WorkoutDayAdapter(OnDayClickListener listener) {
@@ -35,7 +43,7 @@ public class WorkoutDayAdapter extends ListAdapter<WorkoutDay, WorkoutDayAdapter
 
                 @Override
                 public boolean areContentsTheSame(@NonNull WorkoutDay oldItem, @NonNull WorkoutDay newItem) {
-                    return oldItem. getDayId().equals(newItem.getDayId()) &&
+                    return oldItem.getDayId().equals(newItem.getDayId()) &&
                             oldItem.getDayName().equals(newItem.getDayName());
                 }
             };
@@ -63,10 +71,33 @@ public class WorkoutDayAdapter extends ListAdapter<WorkoutDay, WorkoutDayAdapter
         }
 
         public void bind(WorkoutDay day, OnDayClickListener listener) {
-            binding.textDayName.setText(day. getDayName());
-            binding. textDayNumber.setText("Day " + day.getDayNumber());
+            // Create formatted text: "Day 1  workout day name"
+            // "Day 1" in gray, "workout day name" in white
+            String dayNumText = "Day " + day.getDayNumber();
+            String fullText = dayNumText + "  " + day.getDayName();
+            
+            SpannableString spannable = new SpannableString(fullText);
+            
+            // Gray color for "Day X"
+            int grayColor = binding.getRoot().getContext().getColor(R.color.colorOnSurfaceSecondary);
+            spannable.setSpan(new ForegroundColorSpan(grayColor), 
+                            0, dayNumText.length(), 
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+            // White color and bold for workout name
+            int whiteColor = binding.getRoot().getContext().getColor(R.color.white);
+            spannable.setSpan(new ForegroundColorSpan(whiteColor), 
+                            dayNumText.length() + 2, fullText.length(), 
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+            binding.textDayLabel.setText(spannable);
+            
+            // TODO: Get actual exercise count from repository
+            binding.textExerciseCount.setText("0 exercises");
 
             binding.cardDay.setOnClickListener(v -> listener.onDayClick(day));
+            binding.iconEdit.setOnClickListener(v -> listener.onEditClick(day));
+            binding.iconDelete.setOnClickListener(v -> listener.onDeleteClick(day));
         }
     }
 }
