@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/workoutHubFragment"
-        android:name="com.fittrackpro.app.ui.workout.WorkoutHubFragment"
+        android:name="com.fittrackpro.app.ui.workout.WorkoutFragment"
         android:label="@string/workout">
 
         <action

@@ -661,4 +661,19 @@ public class WorkoutRepository {
         entity.setAchievedAt(record.getAchievedAt() != null ? record.getAchievedAt().toDate().getTime() : 0);
         return entity;
     }
+
+    /**
+     * Activate a program for the user
+     */
+    public void activateProgram(String programId, String userId) {
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .update("isActive", true, "updatedAt", Timestamp.now())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("WorkoutRepository", "Program activated: " + programId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("WorkoutRepository", "Failed to activate program", e);
+                });
+    }
 }

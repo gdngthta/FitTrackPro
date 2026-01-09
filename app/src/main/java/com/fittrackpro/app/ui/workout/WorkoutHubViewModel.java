@@ -76,4 +76,20 @@ public class WorkoutHubViewModel extends AndroidViewModel {
         }
         return new MutableLiveData<>(null);
     }
+
+    /**
+     * Start a program by activating it for the current user
+     */
+    public void startProgram(WorkoutProgram program) {
+        String currentUserId = userId.getValue();
+        if (currentUserId != null) {
+            if (program.isPreset()) {
+                // Duplicate preset and activate
+                workoutRepository.duplicatePresetProgram(program.getProgramId(), currentUserId);
+            } else {
+                // Activate user's existing program
+                workoutRepository.activateProgram(program.getProgramId(), currentUserId);
+            }
+        }
+    }
 }
