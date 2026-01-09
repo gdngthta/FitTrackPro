@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +33,9 @@ public class ExerciseLibraryFragment extends Fragment {
     private String selectedEquipment = "All";
     private String searchQuery = "";
     private ExerciseTemplate selectedExercise = null;
+    
+    private String programId;
+    private String dayId;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -43,6 +47,11 @@ public class ExerciseLibraryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if (getArguments() != null) {
+            programId = getArguments().getString("programId");
+            dayId = getArguments().getString("dayId");
+        }
 
         allExercises = ExerciseLibrary.getAllExercises();
         
@@ -143,12 +152,14 @@ public class ExerciseLibraryFragment extends Fragment {
     }
 
     private void navigateToConfiguration(ExerciseTemplate exercise) {
-        // TODO: Navigate to ExerciseConfigurationFragment
         Bundle args = new Bundle();
+        args.putString("programId", programId);
+        args.putString("dayId", dayId);
         args.putString("exerciseName", exercise.getName());
         args.putString("muscleGroup", exercise.getMuscleGroup());
         args.putString("equipment", exercise.getEquipment());
-        // Navigation code here
+        Navigation.findNavController(binding.getRoot())
+            .navigate(R.id.action_exerciseLibrary_to_configuration, args);
     }
 
     @Override

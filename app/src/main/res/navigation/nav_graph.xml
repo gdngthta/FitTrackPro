@@ -96,6 +96,79 @@
             android:name="daysPerWeek"
             app:argType="integer"
             android:defaultValue="4" />
+
+        <action
+            android:id="@+id/action_editWorkoutDays_to_dayDetail"
+            app:destination="@id/workoutDayDetailFragment" />
+    </fragment>
+
+    <!-- Workout Day Detail -->
+    <fragment
+        android:id="@+id/workoutDayDetailFragment"
+        android:name="com.fittrackpro.app.ui.workout.WorkoutDayDetailFragment"
+        android:label="Workout Day Detail">
+
+        <argument
+            android:name="programId"
+            app:argType="string" />
+
+        <argument
+            android:name="dayId"
+            app:argType="string" />
+
+        <argument
+            android:name="dayName"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_dayDetail_to_exerciseLibrary"
+            app:destination="@id/exerciseLibraryFragment" />
+    </fragment>
+
+    <!-- Exercise Library -->
+    <fragment
+        android:id="@+id/exerciseLibraryFragment"
+        android:name="com.fittrackpro.app.ui.workout.ExerciseLibraryFragment"
+        android:label="Exercise Library">
+
+        <argument
+            android:name="programId"
+            app:argType="string" />
+
+        <argument
+            android:name="dayId"
+            app:argType="string" />
+
+        <action
+            android:id="@+id/action_exerciseLibrary_to_configuration"
+            app:destination="@id/exerciseConfigurationFragment" />
+    </fragment>
+
+    <!-- Exercise Configuration -->
+    <fragment
+        android:id="@+id/exerciseConfigurationFragment"
+        android:name="com.fittrackpro.app.ui.workout.ExerciseConfigurationFragment"
+        android:label="Exercise Configuration">
+
+        <argument
+            android:name="programId"
+            app:argType="string" />
+
+        <argument
+            android:name="dayId"
+            app:argType="string" />
+
+        <argument
+            android:name="exerciseName"
+            app:argType="string" />
+
+        <argument
+            android:name="muscleGroup"
+            app:argType="string" />
+
+        <argument
+            android:name="equipment"
+            app:argType="string" />
     </fragment>
 
     <fragment

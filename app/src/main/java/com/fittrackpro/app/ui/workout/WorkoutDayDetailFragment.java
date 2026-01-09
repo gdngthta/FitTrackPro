@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fittrackpro.app.R;
@@ -107,8 +108,11 @@ public class WorkoutDayDetailFragment extends Fragment {
     }
 
     private void navigateToExerciseLibrary() {
-        // TODO: Navigate to ExerciseLibraryFragment
-        Toast.makeText(requireContext(), "Exercise library coming soon", Toast.LENGTH_SHORT).show();
+        Bundle args = new Bundle();
+        args.putString("programId", programId);
+        args.putString("dayId", dayId);
+        Navigation.findNavController(binding.getRoot())
+            .navigate(R.id.action_dayDetail_to_exerciseLibrary, args);
     }
 
     @Override

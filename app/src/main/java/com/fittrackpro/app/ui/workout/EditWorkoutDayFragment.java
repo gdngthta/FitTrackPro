@@ -59,8 +59,12 @@ public class EditWorkoutDayFragment extends Fragment {
             @Override
             public void onDayClick(WorkoutDay day) {
                 // Navigate to workout day detail screen
-                // TODO: Implement navigation to WorkoutDayDetailFragment
-                Toast.makeText(requireContext(), "Navigate to " + day.getDayName(), Toast.LENGTH_SHORT).show();
+                Bundle args = new Bundle();
+                args.putString("programId", programId);
+                args.putString("dayId", day.getDayId());
+                args.putString("dayName", day.getDayName());
+                Navigation.findNavController(binding.getRoot())
+                    .navigate(R.id.action_editWorkoutDays_to_dayDetail, args);
             }
 
             @Override
