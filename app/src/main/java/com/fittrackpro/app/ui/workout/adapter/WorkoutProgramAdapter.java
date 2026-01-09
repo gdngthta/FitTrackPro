@@ -13,6 +13,7 @@ import com.fittrackpro.app.data.model.WorkoutProgram;
 
 /**
  * Adapter for displaying workout programs.
+ * Supports simplified card layout with play button.
  */
 public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutProgramAdapter.ProgramViewHolder> {
 
@@ -37,7 +38,7 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
 
                 @Override
                 public boolean areContentsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return oldItem. getProgramId().equals(newItem.getProgramId()) &&
+                    return oldItem.getProgramId().equals(newItem.getProgramId()) &&
                             oldItem.getProgramName().equals(newItem.getProgramName()) &&
                             oldItem.isActive() == newItem.isActive();
                 }
@@ -66,35 +67,27 @@ public class WorkoutProgramAdapter extends ListAdapter<WorkoutProgram, WorkoutPr
         }
 
         public void bind(WorkoutProgram program, OnProgramClickListener listener) {
+            // Program name
             binding.textProgramName.setText(program.getProgramName());
-            binding.textDescription.setText(program.getDescription());
             
-            // Show difficulty if present
-            if (program.getDifficulty() != null && !program.getDifficulty().isEmpty()) {
-                binding.layoutDifficulty.setVisibility(View.VISIBLE);
-                binding.textDifficulty.setText(program.getDifficulty());
+            // Frequency info (e.g., "3x per week • 3 workout days")
+            String frequencyInfo = program.getDaysPerWeek() + "x per week • " + 
+                                 program.getDaysPerWeek() + " workout days";
+            binding.textFrequencyInfo.setText(frequencyInfo);
+            
+            // Show difficulty badge for preset programs
+            if (program.isPreset() && program.getDifficulty() != null && !program.getDifficulty().isEmpty()) {
+                binding.textDifficulty.setVisibility(View.VISIBLE);
+                binding.textDifficulty.setText(program.getDifficulty().toUpperCase());
             } else {
-                binding.layoutDifficulty.setVisibility(View.GONE);
+                binding.textDifficulty.setVisibility(View.GONE);
             }
-            
-            // Show duration if present
-            if (program.getDurationWeeks() > 0) {
-                binding.textDuration.setVisibility(View.VISIBLE);
-                binding.textDuration.setText(program.getDurationWeeks() + " weeks");
-            } else {
-                binding.textDuration.setVisibility(View.GONE);
-            }
-            
-            binding.textDaysPerWeek.setText(program.getDaysPerWeek() + " days/week");
 
-            // Click on card to view details or edit
+            // Click on card to view details
             binding.cardProgram.setOnClickListener(v -> listener.onProgramClick(program));
             
-            // Long click to start workout
-            binding.cardProgram.setOnLongClickListener(v -> {
-                listener.onStartWorkoutClick(program);
-                return true;
-            });
+            // Click on play button to start workout
+            binding.iconPlay.setOnClickListener(v -> listener.onStartWorkoutClick(program));
         }
     }
 }

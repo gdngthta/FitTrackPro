@@ -18,15 +18,20 @@ import com.fittrackpro.app.ui.workout.adapter.WorkoutProgramAdapter;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * WorkoutHubFragment displays recommended and user programs.
+ * WorkoutHubFragment displays user's programs and recommended programs in a single scrollable view.
  */
 public class WorkoutHubFragment extends Fragment {
 
     private FragmentWorkoutHubBinding binding;
     private WorkoutHubViewModel viewModel;
-    private WorkoutProgramAdapter programAdapter;
-    private boolean showingAllPrograms = false;
+    private WorkoutProgramAdapter myProgramsAdapter;
+    private WorkoutProgramAdapter recommendedProgramsAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -57,94 +62,96 @@ public class WorkoutHubFragment extends Fragment {
     }
 
     private void setupRecyclerViews() {
-        // Single adapter that can show either active or all programs
-        programAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
+        // My Programs Adapter
+        myProgramsAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
             @Override
             public void onProgramClick(WorkoutProgram program) {
-                // Show program preview for presets, navigate to editor for user programs
-                if (program.isPreset()) {
-                    showProgramPreviewDialog(program);
-                } else {
-                    navigateToProgramEditor(program.getProgramId());
-                }
+                navigateToProgramEditor(program.getProgramId());
             }
 
             @Override
             public void onStartWorkoutClick(WorkoutProgram program) {
-                if (program.isPreset()) {
-                    // Duplicate preset and start
-                    viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
-                        if (newProgramId != null) {
-                            navigateToWorkoutDaySelection(newProgramId, program.getProgramName());
-                        }
-                    });
-                } else {
-                    // Start user program directly
-                    navigateToWorkoutDaySelection(program.getProgramId(), program.getProgramName());
-                }
+                navigateToWorkoutDaySelection(program.getProgramId(), program.getProgramName());
             }
         });
-        binding.recyclerPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
-        binding.recyclerPrograms.setAdapter(programAdapter);
+        binding.recyclerMyPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerMyPrograms.setAdapter(myProgramsAdapter);
+
+        // Recommended Programs Adapter (with difficulty grouping)
+        recommendedProgramsAdapter = new WorkoutProgramAdapter(new WorkoutProgramAdapter.OnProgramClickListener() {
+            @Override
+            public void onProgramClick(WorkoutProgram program) {
+                showProgramPreviewDialog(program);
+            }
+
+            @Override
+            public void onStartWorkoutClick(WorkoutProgram program) {
+                // Duplicate preset and start
+                viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
+                    if (newProgramId != null) {
+                        navigateToWorkoutDaySelection(newProgramId, program.getProgramName());
+                    }
+                });
+            }
+        });
+        binding.recyclerRecommendedPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerRecommendedPrograms.setAdapter(recommendedProgramsAdapter);
     }
 
     private void setupObservers() {
-        // Observe based on current tab
+        // Observe user programs
         viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
-            if (programs != null && !showingAllPrograms) {
-                programAdapter.submitList(programs);
-                binding.emptyState.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
-                binding.recyclerPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
+            if (programs != null) {
+                myProgramsAdapter.submitList(programs);
+                binding.emptyStateMyPrograms.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.recyclerMyPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
             }
         });
         
+        // Observe preset programs (for recommended section)
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
-            if (programs != null && showingAllPrograms) {
-                programAdapter.submitList(programs);
-                binding.emptyState.setVisibility(View.GONE);
-                binding.recyclerPrograms.setVisibility(View.VISIBLE);
+            if (programs != null) {
+                // Group programs by difficulty and create a list with headers
+                List<WorkoutProgram> groupedPrograms = groupProgramsByDifficulty(programs);
+                recommendedProgramsAdapter.submitList(groupedPrograms);
             }
         });
     }
 
-    private void setupListeners() {
-        binding.fabAddRoutine.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
-        });
+    /**
+     * Group programs by difficulty level with section headers.
+     * Returns a list where header items have a special marker.
+     */
+    private List<WorkoutProgram> groupProgramsByDifficulty(List<WorkoutProgram> programs) {
+        List<WorkoutProgram> result = new ArrayList<>();
+        Map<String, List<WorkoutProgram>> grouped = new HashMap<>();
         
-        binding.buttonAddFirstProgram.setOnClickListener(v -> {
-            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
-        });
-        
-        // Tab selection
-        binding.tabLayout.addOnTabSelectedListener(new com.google.android.material.tabs.TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(com.google.android.material.tabs.TabLayout.Tab tab) {
-                showingAllPrograms = tab.getPosition() == 1;
-                if (showingAllPrograms) {
-                    viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
-                        if (programs != null) {
-                            programAdapter.submitList(programs);
-                            binding.emptyState.setVisibility(View.GONE);
-                            binding.recyclerPrograms.setVisibility(View.VISIBLE);
-                        }
-                    });
-                } else {
-                    viewModel.getUserPrograms().observe(getViewLifecycleOwner(), programs -> {
-                        if (programs != null) {
-                            programAdapter.submitList(programs);
-                            binding.emptyState.setVisibility(programs.isEmpty() ? View.VISIBLE : View.GONE);
-                            binding.recyclerPrograms.setVisibility(programs.isEmpty() ? View.GONE : View.VISIBLE);
-                        }
-                    });
-                }
+        // Group by difficulty
+        for (WorkoutProgram program : programs) {
+            String difficulty = program.getDifficulty();
+            if (difficulty == null) difficulty = "beginner";
+            difficulty = difficulty.toLowerCase();
+            
+            if (!grouped.containsKey(difficulty)) {
+                grouped.put(difficulty, new ArrayList<>());
             }
+            grouped.get(difficulty).add(program);
+        }
+        
+        // Add in order: Beginner, Intermediate, Pro, Elite
+        String[] difficultyOrder = {"beginner", "intermediate", "pro", "advanced", "elite"};
+        for (String difficulty : difficultyOrder) {
+            if (grouped.containsKey(difficulty) && !grouped.get(difficulty).isEmpty()) {
+                result.addAll(grouped.get(difficulty));
+            }
+        }
+        
+        return result;
+    }
 
-            @Override
-            public void onTabUnselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(com.google.android.material.tabs.TabLayout.Tab tab) {}
+    private void setupListeners() {
+        binding.buttonAddRoutine.setOnClickListener(v -> {
+            Navigation.findNavController(v).navigate(R.id.action_to_addRoutine);
         });
     }
 
@@ -155,7 +162,15 @@ public class WorkoutHubFragment extends Fragment {
                     "Difficulty: " + program.getDifficulty() + "\n" +
                     "Duration: " + program.getDurationWeeks() + " weeks\n" +
                     "Days per week: " + program.getDaysPerWeek())
-            .setPositiveButton(android.R.string.ok, null)
+            .setPositiveButton("Add to My Programs", (dialog, which) -> {
+                // Duplicate preset
+                viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
+                    if (newProgramId != null) {
+                        // Show success message or navigate
+                    }
+                });
+            })
+            .setNegativeButton(android.R.string.cancel, null)
             .show();
     }
 
