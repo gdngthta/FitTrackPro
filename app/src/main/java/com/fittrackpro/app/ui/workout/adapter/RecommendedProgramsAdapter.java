@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.fittrackpro.app.databinding.ItemWorkoutProgramBinding;
 import com.fittrackpro.app.data.model.WorkoutProgram;
 
+import java.util.Objects;
+
 /**
  * Adapter for displaying recommended workout programs.
  * This is a simplified adapter for showing preset/recommended programs.
@@ -32,13 +34,13 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
             new DiffUtil.ItemCallback<WorkoutProgram>() {
                 @Override
                 public boolean areItemsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return oldItem.getProgramId().equals(newItem.getProgramId());
+                    return Objects.equals(oldItem.getProgramId(), newItem.getProgramId());
                 }
 
                 @Override
                 public boolean areContentsTheSame(@NonNull WorkoutProgram oldItem, @NonNull WorkoutProgram newItem) {
-                    return oldItem.getProgramId().equals(newItem.getProgramId()) &&
-                            oldItem.getProgramName().equals(newItem.getProgramName()) &&
+                    return Objects.equals(oldItem.getProgramId(), newItem.getProgramId()) &&
+                            Objects.equals(oldItem.getProgramName(), newItem.getProgramName()) &&
                             oldItem.isPreset() == newItem.isPreset();
                 }
             };
@@ -75,8 +77,13 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
             binding.chipPreset.setVisibility(program.isPreset() ? View.VISIBLE : View.GONE);
             
             // Set description
-            binding.textDescription.setText(program.getDescription());
-            binding.textDescription.setVisibility(View.VISIBLE);
+            String description = program.getDescription();
+            if (description != null && !description.isEmpty()) {
+                binding.textDescription.setText(description);
+                binding.textDescription.setVisibility(View.VISIBLE);
+            } else {
+                binding.textDescription.setVisibility(View.GONE);
+            }
             
             // layoutInfo should remain visible (it contains days/week info)
             binding.layoutInfo.setVisibility(View.VISIBLE);
