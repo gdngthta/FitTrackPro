@@ -58,7 +58,7 @@ public class WorkoutFragment extends Fragment {
             viewModel.setUserId(userId);
         }
 
-        // Initialize preset programs
+        // Initialize preset programs to ensure they exist in Firestore
         viewModel.initializePresetPrograms();
 
         setupRecyclerViews();
@@ -106,7 +106,7 @@ public class WorkoutFragment extends Fragment {
 
         // Settings icon
         binding.iconSettings.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Settings coming soon", Toast.LENGTH_SHORT).show();
+            // Settings icon - no action needed as settings are accessed from profile
         });
     }
 

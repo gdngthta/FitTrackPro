@@ -8,7 +8,7 @@
     android:layout_margin="16dp"
     app:cardElevation="4dp"
     app:cardCornerRadius="12dp"
-    app:cardBackgroundColor="@color/dark_gray">
+    app:cardBackgroundColor="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/white"
+            android:textColor="?attr/colorOnSurface"
             tools:text="Starting Strength" />
 
         <!-- Metadata Row -->
@@ -45,7 +45,7 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_calendar"
-                    app:tint="@color/md_theme_onSurfaceVariant"
+                    app:tint="?attr/colorOnSurfaceVariant"
                     android:contentDescription="Duration" />
 
                 <TextView
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textSize="14sp"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     tools:text="8 weeks" />
             </LinearLayout>
 
@@ -70,7 +70,7 @@
                     android:layout_width="16dp"
                     android:layout_height="16dp"
                     android:src="@drawable/ic_workout"
-                    app:tint="@color/md_theme_onSurfaceVariant"
+                    app:tint="?attr/colorOnSurfaceVariant"
                     android:contentDescription="Frequency" />
 
                 <TextView
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
                     android:textSize="14sp"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     tools:text="3 days/week" />
             </LinearLayout>
         </LinearLayout>
@@ -96,7 +96,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_badge"
-                app:tint="@color/md_theme_onSurfaceVariant"
+                app:tint="?attr/colorOnSurfaceVariant"
                 android:contentDescription="Focus" />
 
             <TextView
@@ -105,7 +105,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:textSize="14sp"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Strength, Compound Lifts" />
         </LinearLayout>
 
@@ -116,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:textSize="14sp"
-            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:maxLines="4"
             android:ellipsize="end"
             tools:text="Perfect for newcomers to strength training. Focus on compound movements with progressive overload. Build foundational strength and learn proper form." />
@@ -130,8 +130,8 @@
             android:text="Start Program"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:backgroundTint="@color/emerald_green"
-            android:textColor="@color/white"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnSurface"
             style="@style/Widget.Material3.Button" />
 
     </LinearLayout>

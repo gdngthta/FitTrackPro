@@ -128,8 +128,12 @@ public class WorkoutDayDetailFragment extends Fragment {
         });
 
         binding.buttonStartWorkout.setOnClickListener(v -> {
-            // TODO: Navigate to active workout
-            Toast.makeText(requireContext(), "Start workout functionality coming soon", Toast.LENGTH_SHORT).show();
+            // Navigate to active workout with program and day info
+            Bundle args = new Bundle();
+            args.putString("programId", programId);
+            args.putString("dayId", dayId);
+            args.putString("dayName", dayName);
+            Navigation.findNavController(v).navigate(R.id.action_to_activeWorkout, args);
         });
 
         // Save switch states

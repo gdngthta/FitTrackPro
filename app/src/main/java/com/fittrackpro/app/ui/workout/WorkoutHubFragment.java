@@ -61,6 +61,9 @@ public class WorkoutHubFragment extends Fragment {
         }
         String userId = currentUser.getUid();
         viewModel.setUserId(userId);
+        
+        // Initialize preset programs to ensure they exist in Firestore
+        viewModel.initializePresetPrograms();
     }
 
     private void setupRecyclerViews() {

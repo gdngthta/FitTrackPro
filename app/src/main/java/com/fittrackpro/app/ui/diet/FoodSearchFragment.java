@@ -68,6 +68,28 @@ public class FoodSearchFragment extends Fragment {
 
         binding.recyclerFoodResults.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerFoodResults.setAdapter(adapter);
+        
+        // Load default foods on start
+        loadDefaultFoods();
+    }
+
+    private void loadDefaultFoods() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.emptyState.setVisibility(View.GONE);
+
+        nutritionRepository.getAllFoods().observe(getViewLifecycleOwner(), foods -> {
+            binding.progressBar.setVisibility(View.GONE);
+
+            if (foods != null && !foods.isEmpty()) {
+                adapter.submitList(foods);
+                binding.recyclerFoodResults.setVisibility(View.VISIBLE);
+                binding.emptyState.setVisibility(View.GONE);
+            } else {
+                binding.recyclerFoodResults.setVisibility(View.GONE);
+                binding.emptyState.setVisibility(View.VISIBLE);
+                binding.emptyState.setText("No foods found in database. Please add foods first.");
+            }
+        });
     }
 
     private void setupSearch() {
@@ -90,13 +112,19 @@ public class FoodSearchFragment extends Fragment {
 
     private void searchFood(String query) {
         binding.progressBar.setVisibility(View.VISIBLE);
+        binding.emptyState.setVisibility(View.GONE);
 
         nutritionRepository.searchFoods(query).observe(getViewLifecycleOwner(), foods -> {
             binding.progressBar.setVisibility(View.GONE);
 
-            if (foods != null) {
+            if (foods != null && !foods.isEmpty()) {
                 adapter.submitList(foods);
-                binding.emptyState.setVisibility(foods.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.recyclerFoodResults.setVisibility(View.VISIBLE);
+                binding.emptyState.setVisibility(View.GONE);
+            } else {
+                binding.recyclerFoodResults.setVisibility(View.GONE);
+                binding.emptyState.setVisibility(View.VISIBLE);
+                binding.emptyState.setText("No foods found for \"" + query + "\"");
             }
         });
     }

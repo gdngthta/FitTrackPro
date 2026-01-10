@@ -133,9 +133,39 @@ public class NutritionRepository {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     List<Food> foods = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc :  querySnapshot) {
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
                         Food food = doc.toObject(Food.class);
-                        foods. add(food);
+                        foods.add(food);
+                    }
+                    result.setValue(foods);
+
+                    // Cache in Room
+                    executor.execute(() -> {
+                        for (Food f : foods) {
+                            foodDao.insertFood(foodModelToEntity(f));
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> result.setValue(new ArrayList<>()));
+
+        return result;
+    }
+
+    /**
+     * Get all foods (default list) - limited to first 50
+     */
+    public LiveData<List<Food>> getAllFoods() {
+        MutableLiveData<List<Food>> result = new MutableLiveData<>();
+
+        firestore.collection("foodsDatabase")
+                .orderBy("foodName")
+                .limit(50)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Food> foods = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Food food = doc.toObject(Food.class);
+                        foods.add(food);
                     }
                     result.setValue(foods);
 

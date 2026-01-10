@@ -49,10 +49,18 @@ public class PresetProgramListFragment extends Fragment {
         }
         String userId = currentUser.getUid();
         viewModel.setUserId(userId);
+        
+        // Initialize preset programs to ensure they exist
+        viewModel.initializePresetPrograms();
 
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
             if (programs != null) {
+                android.util.Log.d("PresetProgramList", "Loaded " + programs.size() + " preset programs");
                 adapter.submitList(programs);
+                
+                if (programs.isEmpty()) {
+                    Toast.makeText(requireContext(), "No preset programs available. Please try again later.", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
