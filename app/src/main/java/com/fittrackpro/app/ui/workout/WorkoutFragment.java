@@ -106,7 +106,7 @@ public class WorkoutFragment extends Fragment {
 
         // Settings icon
         binding.iconSettings.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Settings coming soon", Toast.LENGTH_SHORT).show();
+            // Settings icon - no action needed as settings are accessed from profile
         });
     }
 
