@@ -168,11 +168,25 @@ public class ExerciseConfigurationFragment extends Fragment {
     }
 
     private void addExercise() {
-        // TODO: Save exercise to repository and navigate back
+        // Create exercise data bundle
+        Bundle result = new Bundle();
+        result.putString("exerciseName", exerciseName);
+        result.putString("muscleGroup", muscleGroup);
+        result.putString("equipment", equipment);
+        result.putInt("targetSets", selectedSets);
+        result.putInt("targetRepsMin", selectedRepsMin);
+        result.putInt("targetRepsMax", selectedRepsMax);
+        result.putInt("restSeconds", selectedRestSeconds);
+        
+        // Send result back to parent fragment
+        getParentFragmentManager().setFragmentResult("exercise_added", result);
+        
+        android.util.Log.d("ExerciseConfig", "Sending exercise result: " + exerciseName + 
+            " - " + selectedSets + " sets, " + selectedRepsMin + "-" + selectedRepsMax + 
+            " reps, " + selectedRestSeconds + "s rest");
+        
         Toast.makeText(requireContext(), 
-            "Added: " + exerciseName + " - " + selectedSets + " sets, " + 
-            selectedRepsMin + "-" + selectedRepsMax + " reps, " + 
-            selectedRestSeconds + "s rest", 
+            "Added: " + exerciseName, 
             Toast.LENGTH_SHORT).show();
         
         requireActivity().onBackPressed();
