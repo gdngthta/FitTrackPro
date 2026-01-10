@@ -154,28 +154,36 @@ public class WorkoutRepository {
      */
     public LiveData<String> duplicatePresetProgram(String presetId, String userId) {
         MutableLiveData<String> result = new MutableLiveData<>();
+        
+        Log.d("WorkoutRepository", "duplicatePresetProgram called - presetId: " + presetId + ", userId: " + userId);
 
         // Fetch preset program
         firestore.collection("workoutPrograms")
                 .document(presetId)
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
+                    Log.d("WorkoutRepository", "Successfully fetched preset document");
+                    
                     WorkoutProgram preset = documentSnapshot.toObject(WorkoutProgram.class);
                     if (preset == null) {
-                        result. setValue(null);
+                        Log.e("WorkoutRepository", "Preset program is null - document might not exist or has invalid data");
+                        result.setValue(null);
                         return;
                     }
+                    
+                    Log.d("WorkoutRepository", "Preset program found: " + preset.getProgramName());
 
                     // Create new program document
                     String newProgramId = firestore.collection("workoutPrograms").document().getId();
+                    Log.d("WorkoutRepository", "Generated new program ID: " + newProgramId);
 
                     WorkoutProgram newProgram = new WorkoutProgram();
                     newProgram.setProgramId(newProgramId);
                     newProgram.setUserId(userId);
                     newProgram.setProgramName(preset.getProgramName() + " (My Copy)");
-                    newProgram. setDescription(preset.getDescription());
+                    newProgram.setDescription(preset.getDescription());
                     newProgram.setDifficulty(preset.getDifficulty());
-                    newProgram. setDurationWeeks(preset.getDurationWeeks());
+                    newProgram.setDurationWeeks(preset.getDurationWeeks());
                     newProgram.setDaysPerWeek(preset.getDaysPerWeek());
                     newProgram.setPreset(false);
                     newProgram.setActive(true);
@@ -183,17 +191,26 @@ public class WorkoutRepository {
                     newProgram.setCreatedAt(Timestamp.now());
                     newProgram.setUpdatedAt(Timestamp.now());
 
+                    Log.d("WorkoutRepository", "Saving new program to Firestore: " + newProgram.getProgramName());
+                    
                     // Save new program
                     firestore.collection("workoutPrograms")
                             .document(newProgramId)
                             .set(newProgram)
                             .addOnSuccessListener(aVoid -> {
+                                Log.d("WorkoutRepository", "New program saved successfully, now duplicating workout days");
                                 // Now duplicate workout days
                                 duplicateWorkoutDays(presetId, newProgramId, result);
                             })
-                            .addOnFailureListener(e -> result.setValue(null));
+                            .addOnFailureListener(e -> {
+                                Log.e("WorkoutRepository", "Failed to save new program", e);
+                                result.setValue(null);
+                            });
                 })
-                .addOnFailureListener(e -> result.setValue(null));
+                .addOnFailureListener(e -> {
+                    Log.e("WorkoutRepository", "Failed to fetch preset program", e);
+                    result.setValue(null);
+                });
 
         return result;
     }
@@ -202,12 +219,17 @@ public class WorkoutRepository {
      * Helper to duplicate workout days from preset
      */
     private void duplicateWorkoutDays(String sourceId, String targetId, MutableLiveData<String> result) {
+        Log.d("WorkoutRepository", "duplicateWorkoutDays - sourceId: " + sourceId + ", targetId: " + targetId);
+        
         firestore.collection("workoutPrograms")
                 .document(sourceId)
                 .collection("workoutDays")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    Log.d("WorkoutRepository", "Found " + querySnapshot.size() + " workout days to duplicate");
+                    
                     if (querySnapshot.isEmpty()) {
+                        Log.w("WorkoutRepository", "No workout days found, completing duplication");
                         result.setValue(targetId);
                         return;
                     }
@@ -222,6 +244,8 @@ public class WorkoutRepository {
                                 .collection("workoutDays")
                                 .document().getId();
 
+                        Log.d("WorkoutRepository", "Duplicating day: " + day.getDayName() + " -> " + newDayId);
+
                         day.setDayId(newDayId);
                         day.setProgramId(targetId);
 
@@ -231,17 +255,27 @@ public class WorkoutRepository {
                                 .document(newDayId)
                                 .set(day)
                                 .addOnSuccessListener(aVoid -> {
+                                    Log.d("WorkoutRepository", "Day saved successfully, duplicating exercises");
                                     // Duplicate exercises for this day
                                     duplicateExercises(sourceId, dayDoc.getId(), targetId, newDayId);
 
                                     counter[0]++;
+                                    Log.d("WorkoutRepository", "Progress: " + counter[0] + "/" + total + " days duplicated");
                                     if (counter[0] == total) {
-                                        result. setValue(targetId);
+                                        Log.d("WorkoutRepository", "All workout days duplicated successfully!");
+                                        result.setValue(targetId);
                                     }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("WorkoutRepository", "Failed to save workout day", e);
+                                    result.setValue(null);
                                 });
                     }
                 })
-                .addOnFailureListener(e -> result.setValue(null));
+                .addOnFailureListener(e -> {
+                    Log.e("WorkoutRepository", "Failed to fetch workout days", e);
+                    result.setValue(null);
+                });
     }
 
     /**
@@ -249,6 +283,8 @@ public class WorkoutRepository {
      */
     private void duplicateExercises(String sourceProgramId, String sourceDayId,
                                     String targetProgramId, String targetDayId) {
+        Log.d("WorkoutRepository", "duplicateExercises - sourceDayId: " + sourceDayId + ", targetDayId: " + targetDayId);
+        
         firestore.collection("workoutPrograms")
                 .document(sourceProgramId)
                 .collection("workoutDays")
@@ -256,26 +292,39 @@ public class WorkoutRepository {
                 .collection("programExercises")
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
+                    Log.d("WorkoutRepository", "Found " + querySnapshot.size() + " exercises to duplicate");
+                    
                     for (QueryDocumentSnapshot exDoc : querySnapshot) {
                         ProgramExercise exercise = exDoc.toObject(ProgramExercise.class);
                         String newExId = firestore.collection("workoutPrograms")
-                                . document(targetProgramId)
+                                .document(targetProgramId)
                                 .collection("workoutDays")
                                 .document(targetDayId)
-                                . collection("programExercises")
+                                .collection("programExercises")
                                 .document().getId();
+
+                        Log.d("WorkoutRepository", "Duplicating exercise: " + exercise.getExerciseName() + " -> " + newExId);
 
                         exercise.setExerciseId(newExId);
                         exercise.setDayId(targetDayId);
 
                         firestore.collection("workoutPrograms")
                                 .document(targetProgramId)
-                                . collection("workoutDays")
+                                .collection("workoutDays")
                                 .document(targetDayId)
                                 .collection("programExercises")
                                 .document(newExId)
-                                .set(exercise);
+                                .set(exercise)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("WorkoutRepository", "Exercise saved successfully: " + exercise.getExerciseName());
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("WorkoutRepository", "Failed to save exercise: " + exercise.getExerciseName(), e);
+                                });
                     }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("WorkoutRepository", "Failed to fetch exercises for day " + sourceDayId, e);
                 });
     }
 

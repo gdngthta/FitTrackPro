@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -78,9 +79,19 @@ public class WorkoutHubFragment extends Fragment {
             public void onStartWorkoutClick(WorkoutProgram program) {
                 if (program.isPreset()) {
                     // Duplicate preset and start
+                    android.util.Log.d("WorkoutHub", "Duplicating preset program: " + program.getProgramName());
+                    binding.progressBar.setVisibility(View.VISIBLE);
+                    
                     viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        
                         if (newProgramId != null) {
+                            android.util.Log.d("WorkoutHub", "Program duplicated successfully, navigating...");
+                            Toast.makeText(requireContext(), "Program added! Starting workout...", Toast.LENGTH_SHORT).show();
                             navigateToWorkoutDaySelection(newProgramId, program.getProgramName());
+                        } else {
+                            android.util.Log.e("WorkoutHub", "Failed to duplicate program");
+                            Toast.makeText(requireContext(), "Failed to add program. Please try again.", Toast.LENGTH_LONG).show();
                         }
                     });
                 } else {
