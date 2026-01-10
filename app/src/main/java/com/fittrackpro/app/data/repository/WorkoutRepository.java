@@ -62,6 +62,8 @@ public class WorkoutRepository {
     public LiveData<List<WorkoutProgram>> getPresetPrograms() {
         MutableLiveData<List<WorkoutProgram>> result = new MutableLiveData<>();
 
+        Log.d("WorkoutRepository", "getPresetPrograms: Starting Firestore query");
+        
         firestore.collection("workoutPrograms")
                 .whereEqualTo("isPreset", true)
                 .get()
@@ -71,6 +73,12 @@ public class WorkoutRepository {
                         WorkoutProgram program = doc.toObject(WorkoutProgram.class);
                         programs.add(program);
                     }
+                    
+                    Log.d("WorkoutRepository", "getPresetPrograms: Loaded " + programs.size() + " preset programs");
+                    for (WorkoutProgram p : programs) {
+                        Log.d("WorkoutRepository", "  - " + p.getProgramName() + " (Difficulty: " + p.getDifficulty() + ")");
+                    }
+                    
                     result.setValue(programs);
 
                     // Cache in Room
@@ -83,6 +91,7 @@ public class WorkoutRepository {
                     });
                 })
                 .addOnFailureListener(e -> {
+                    Log.e("WorkoutRepository", "getPresetPrograms: Failed to load preset programs", e);
                     result.setValue(new ArrayList<>());
                 });
 
