@@ -59,6 +59,9 @@ public class FoodSearchFragment extends Fragment {
 
         setupRecyclerView();
         setupSearch();
+        
+        // Load common foods on start
+        loadCommonFoods();
     }
 
     private void setupRecyclerView() {
@@ -83,7 +86,27 @@ public class FoodSearchFragment extends Fragment {
                 String query = s.toString().trim();
                 if (query.length() >= 2) {
                     searchFood(query);
+                } else if (query.isEmpty()) {
+                    // Show common foods when search is cleared
+                    loadCommonFoods();
                 }
+            }
+        });
+    }
+
+    private void loadCommonFoods() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        
+        nutritionRepository.getCommonFoods().observe(getViewLifecycleOwner(), foods -> {
+            binding.progressBar.setVisibility(View.GONE);
+            
+            if (foods != null && !foods.isEmpty()) {
+                adapter.submitList(foods);
+                binding.emptyState.setVisibility(View.GONE);
+            } else {
+                adapter.submitList(new java.util.ArrayList<>());
+                binding.emptyState.setVisibility(View.VISIBLE);
+                binding.emptyState.setText("No foods available. Try searching.");
             }
         });
     }

@@ -119,6 +119,113 @@ public class NutritionRepository {
     // ==================== FOOD DATABASE ====================
 
     /**
+     * Initialize common foods in the database for quick access
+     */
+    public void initializeCommonFoods() {
+        // Define common foods
+        Object[][] commonFoods = {
+            {"Chicken Breast", "", 100.0, "g", 165.0, 31.0, 0.0, 3.6, true},
+            {"Eggs", "Large", 1.0, "egg", 72.0, 6.3, 0.6, 4.8, true},
+            {"White Rice", "Cooked", 100.0, "g", 130.0, 2.7, 28.2, 0.3, true},
+            {"Brown Rice", "Cooked", 100.0, "g", 112.0, 2.6, 23.5, 0.9, true},
+            {"Oats", "Dry", 100.0, "g", 389.0, 16.9, 66.3, 6.9, true},
+            {"Banana", "Medium", 1.0, "banana", 105.0, 1.3, 27.0, 0.4, true},
+            {"Apple", "Medium", 1.0, "apple", 95.0, 0.5, 25.0, 0.3, true},
+            {"Broccoli", "Raw", 100.0, "g", 34.0, 2.8, 7.0, 0.4, true},
+            {"Salmon", "Cooked", 100.0, "g", 206.0, 22.0, 0.0, 12.4, true},
+            {"Greek Yogurt", "Non-fat", 100.0, "g", 59.0, 10.2, 3.6, 0.4, true},
+            {"Almonds", "", 28.0, "g", 164.0, 6.0, 6.1, 14.2, true},
+            {"Sweet Potato", "Cooked", 100.0, "g", 90.0, 2.0, 20.7, 0.2, true},
+            {"Ground Beef", "90% Lean", 100.0, "g", 176.0, 20.0, 0.0, 10.0, true},
+            {"Whole Milk", "", 240.0, "ml", 149.0, 7.7, 11.7, 7.9, true},
+            {"Peanut Butter", "", 32.0, "g", 188.0, 8.0, 7.0, 16.0, true},
+            {"Bread", "Whole Wheat", 1.0, "slice", 80.0, 4.0, 14.0, 1.0, true},
+            {"Pasta", "Cooked", 100.0, "g", 131.0, 5.1, 25.1, 1.1, true},
+            {"Tuna", "Canned in water", 100.0, "g", 116.0, 25.5, 0.0, 0.8, true},
+            {"Avocado", "Medium", 0.5, "avocado", 120.0, 1.5, 6.0, 11.0, true},
+            {"Spinach", "Raw", 100.0, "g", 23.0, 2.9, 3.6, 0.4, true}
+        };
+
+        for (Object[] foodData : commonFoods) {
+            String name = (String) foodData[0];
+            String brand = (String) foodData[1];
+            double servingSize = (double) foodData[2];
+            String servingUnit = (String) foodData[3];
+            double calories = (double) foodData[4];
+            double protein = (double) foodData[5];
+            double carbs = (double) foodData[6];
+            double fats = (double) foodData[7];
+            boolean verified = (boolean) foodData[8];
+
+            // Check if food already exists
+            firestore.collection("foodsDatabase")
+                    .whereEqualTo("foodName", name)
+                    .whereEqualTo("brand", brand)
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        if (querySnapshot.isEmpty()) {
+                            // Create new food
+                            createCommonFood(name, brand, servingSize, servingUnit, 
+                                           calories, protein, carbs, fats, verified);
+                        }
+                    })
+                    .addOnFailureListener(e -> 
+                        android.util.Log.e("NutritionRepository", "Failed to check existing food: " + name, e));
+        }
+    }
+
+    /**
+     * Create a common food entry
+     */
+    private void createCommonFood(String name, String brand, double servingSize, String servingUnit,
+                                 double calories, double protein, double carbs, double fats, boolean verified) {
+        String foodId = firestore.collection("foodsDatabase").document().getId();
+
+        Food food = new Food();
+        food.setFoodId(foodId);
+        food.setFoodName(name);
+        food.setBrand(brand);
+        food.setServingSize(servingSize);
+        food.setServingUnit(servingUnit);
+        food.setCalories(calories);
+        food.setProtein(protein);
+        food.setCarbs(carbs);
+        food.setFats(fats);
+        food.setVerified(verified);
+
+        firestore.collection("foodsDatabase")
+                .document(foodId)
+                .set(food)
+                .addOnSuccessListener(aVoid -> 
+                    android.util.Log.d("NutritionRepository", "Created common food: " + name))
+                .addOnFailureListener(e -> 
+                    android.util.Log.e("NutritionRepository", "Failed to create common food: " + name, e));
+    }
+
+    /**
+     * Get common/popular foods for display before search
+     */
+    public LiveData<List<Food>> getCommonFoods() {
+        MutableLiveData<List<Food>> result = new MutableLiveData<>();
+
+        firestore.collection("foodsDatabase")
+                .whereEqualTo("verified", true)
+                .limit(20)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Food> foods = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Food food = doc.toObject(Food.class);
+                        foods.add(food);
+                    }
+                    result.setValue(foods);
+                })
+                .addOnFailureListener(e -> result.setValue(new ArrayList<>()));
+
+        return result;
+    }
+
+    /**
      * Search foods in database
      */
     public LiveData<List<Food>> searchFoods(String query) {

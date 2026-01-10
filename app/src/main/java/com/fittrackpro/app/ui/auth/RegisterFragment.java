@@ -28,6 +28,8 @@ public class RegisterFragment extends Fragment {
     private FragmentRegisterBinding binding;
     private AuthRepository authRepository;
     private boolean usernameAvailable = false;
+    private android.os.Handler usernameCheckHandler;
+    private Runnable usernameCheckRunnable;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -41,6 +43,7 @@ public class RegisterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         authRepository = new AuthRepository();
+        usernameCheckHandler = new android.os.Handler(android.os.Looper.getMainLooper());
 
         setupUsernameValidation();
 
@@ -67,46 +70,74 @@ public class RegisterFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 String username = s.toString().trim();
 
+                // Remove any pending checks
+                if (usernameCheckRunnable != null) {
+                    usernameCheckHandler.removeCallbacks(usernameCheckRunnable);
+                }
+
+                // Clear status and hide while typing
+                binding.textUsernameStatus.setVisibility(View.GONE);
+                usernameAvailable = false;
+
+                // Validate length first
+                if (username.isEmpty()) {
+                    binding.editUsername.setError(null);
+                    return;
+                }
+
                 if (username.length() < Constants.MIN_USERNAME_LENGTH) {
                     binding.editUsername.setError(requireContext().getString(R.string.username_min_length, Constants.MIN_USERNAME_LENGTH));
-                    usernameAvailable = false;
                     return;
                 }
 
                 if (username.length() > Constants.MAX_USERNAME_LENGTH) {
                     binding.editUsername.setError(requireContext().getString(R.string.username_max_length, Constants.MAX_USERNAME_LENGTH));
-                    usernameAvailable = false;
                     return;
                 }
 
-                // Check availability
-                authRepository.isUsernameAvailable(username).observe(getViewLifecycleOwner(), available -> {
-                    if (available == null) {
-                        // Error checking username - could be network issue
-                        binding.textUsernameStatus.setText("Error checking username");
-                        binding.textUsernameStatus.setTextColor(
-                                ContextCompat.getColor(requireContext(), R.color.md_theme_error)
-                        );
-                        usernameAvailable = false;
-                        binding.textUsernameStatus.setVisibility(View.VISIBLE);
-                    } else if (available) {
-                        // Username is available
-                        binding.textUsernameStatus.setText(R.string.username_available);
-                        binding.textUsernameStatus.setTextColor(
-                                ContextCompat.getColor(requireContext(), R.color.emerald_green)
-                        );
-                        usernameAvailable = true;
-                        binding.textUsernameStatus.setVisibility(View.VISIBLE);
-                    } else {
-                        // Username is taken
-                        binding.textUsernameStatus.setText(R.string.username_taken);
-                        binding.textUsernameStatus.setTextColor(
-                                ContextCompat.getColor(requireContext(), R.color.md_theme_error)
-                        );
-                        usernameAvailable = false;
-                        binding.textUsernameStatus.setVisibility(View.VISIBLE);
-                    }
-                });
+                // Clear any previous error
+                binding.editUsername.setError(null);
+
+                // Show loading indicator
+                binding.textUsernameStatus.setText("Checking availability...");
+                binding.textUsernameStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.colorOnSurfaceVariant)
+                );
+                binding.textUsernameStatus.setVisibility(View.VISIBLE);
+
+                // Create debounced check (500ms delay)
+                usernameCheckRunnable = () -> checkUsernameAvailability(username);
+                usernameCheckHandler.postDelayed(usernameCheckRunnable, 500);
+            }
+        });
+    }
+
+    private void checkUsernameAvailability(String username) {
+        authRepository.isUsernameAvailable(username).observe(getViewLifecycleOwner(), available -> {
+            if (available == null) {
+                // Error checking username - could be network issue
+                binding.textUsernameStatus.setText("Error checking username. Please check your connection.");
+                binding.textUsernameStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.md_theme_error)
+                );
+                usernameAvailable = false;
+                binding.textUsernameStatus.setVisibility(View.VISIBLE);
+            } else if (available) {
+                // Username is available
+                binding.textUsernameStatus.setText("✓ Username available");
+                binding.textUsernameStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.emerald_green)
+                );
+                usernameAvailable = true;
+                binding.textUsernameStatus.setVisibility(View.VISIBLE);
+            } else {
+                // Username is taken
+                binding.textUsernameStatus.setText("✗ Username already taken");
+                binding.textUsernameStatus.setTextColor(
+                        ContextCompat.getColor(requireContext(), R.color.md_theme_error)
+                );
+                usernameAvailable = false;
+                binding.textUsernameStatus.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -180,6 +211,10 @@ public class RegisterFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        // Clean up handler callbacks
+        if (usernameCheckHandler != null && usernameCheckRunnable != null) {
+            usernameCheckHandler.removeCallbacks(usernameCheckRunnable);
+        }
         binding = null;
     }
 }

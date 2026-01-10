@@ -30,6 +30,9 @@ public class FitTrackApplication extends Application {
 
         // Seed preset programs on first launch
         seedPresetProgramsIfNeeded();
+        
+        // Seed common foods on first launch
+        seedCommonFoodsIfNeeded();
 
         // Initialize sync on app start if user is logged in
         String userId = getCurrentUserId();
@@ -49,6 +52,23 @@ public class FitTrackApplication extends Application {
 
             // Mark as seeded
             prefs.edit().putBoolean("preset_programs_seeded", true).apply();
+        }
+    }
+
+    private void seedCommonFoodsIfNeeded() {
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+        boolean hasSeeded = prefs.getBoolean("common_foods_seeded", false);
+
+        if (!hasSeeded) {
+            // Seed common foods
+            com.fittrackpro.app.data.local.AppDatabase database = 
+                com.fittrackpro.app.data.local.AppDatabase.getInstance(this);
+            com.fittrackpro.app.data.repository.NutritionRepository nutritionRepo = 
+                new com.fittrackpro.app.data.repository.NutritionRepository(database);
+            nutritionRepo.initializeCommonFoods();
+
+            // Mark as seeded
+            prefs.edit().putBoolean("common_foods_seeded", true).apply();
         }
     }
 

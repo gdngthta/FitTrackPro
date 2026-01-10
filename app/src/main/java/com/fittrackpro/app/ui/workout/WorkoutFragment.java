@@ -106,7 +106,8 @@ public class WorkoutFragment extends Fragment {
 
         // Settings icon
         binding.iconSettings.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Settings coming soon", Toast.LENGTH_SHORT).show();
+            // Settings functionality can be added here if needed
+            // For now, settings are accessed from Profile tab
         });
     }
 
