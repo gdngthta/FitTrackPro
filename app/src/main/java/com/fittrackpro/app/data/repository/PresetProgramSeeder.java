@@ -35,13 +35,13 @@ public class PresetProgramSeeder {
     }
 
     private void seedBeginnerPrograms() {
-        // Starting Strength - Beginner
-        String programId = "preset_starting_strength";
+        // Full Body Starter - Beginner
+        String programId = "preset_full_body_starter";
         WorkoutProgram program = new WorkoutProgram();
         program.setProgramId(programId);
         program.setUserId(null); // Preset programs have no user
-        program.setProgramName("Starting Strength");
-        program.setDescription("Perfect for newcomers to strength training. Focus on compound movements with progressive overload. Build foundational strength and learn proper form.");
+        program.setProgramName("Full Body Starter");
+        program.setDescription("Perfect for beginners. Full body workouts 3x per week.");
         program.setDifficulty("Beginner");
         program.setDurationWeeks(12);
         program.setDaysPerWeek(3);
@@ -54,62 +54,65 @@ public class PresetProgramSeeder {
                 .document(programId)
                 .set(program);
 
-        // Add Day A
-        String dayAId = "ss_day_a";
-        WorkoutDay dayA = new WorkoutDay();
-        dayA.setDayId(dayAId);
-        dayA.setProgramId(programId);
-        dayA.setDayNumber(1);
-        dayA.setDayName("Day A - Squat Day");
+        // Add Day 1 - Full Body A
+        String day1Id = "fbs_day_1";
+        WorkoutDay day1 = new WorkoutDay();
+        day1.setDayId(day1Id);
+        day1.setProgramId(programId);
+        day1.setDayNumber(1);
+        day1.setDayName("Day 1 - Full Body A");
 
         firestore.collection("workoutPrograms")
                 .document(programId)
                 .collection("workoutDays")
-                .document(dayAId)
-                .set(dayA);
+                .document(day1Id)
+                .set(day1);
 
-        // Add exercises for Day A
-        addExercise(programId, dayAId, "ex1", "Barbell Back Squat", "Legs", "Barbell", 3, 5, 5, 180, 1);
-        addExercise(programId, dayAId, "ex2", "Barbell Bench Press", "Chest", "Barbell", 3, 5, 5, 180, 2);
-        addExercise(programId, dayAId, "ex3", "Barbell Deadlift", "Back", "Barbell", 1, 5, 5, 240, 3);
+        // Add exercises for Day 1
+        addExercise(programId, day1Id, "ex1", "Barbell Back Squat", "Legs", "Barbell", 3, 8, 12, 120, 1);
+        addExercise(programId, day1Id, "ex2", "Barbell Bench Press", "Chest", "Barbell", 3, 8, 12, 120, 2);
+        addExercise(programId, day1Id, "ex3", "Barbell Row", "Back", "Barbell", 3, 8, 12, 90, 3);
+        addExercise(programId, day1Id, "ex4", "Overhead Press", "Shoulders", "Barbell", 2, 8, 12, 90, 4);
 
-        // Add Day B
-        String dayBId = "ss_day_b";
-        WorkoutDay dayB = new WorkoutDay();
-        dayB.setDayId(dayBId);
-        dayB.setProgramId(programId);
-        dayB.setDayNumber(2);
-        dayB.setDayName("Day B - Press Day");
+        // Add Day 2 - Full Body B
+        String day2Id = "fbs_day_2";
+        WorkoutDay day2 = new WorkoutDay();
+        day2.setDayId(day2Id);
+        day2.setProgramId(programId);
+        day2.setDayNumber(2);
+        day2.setDayName("Day 2 - Full Body B");
 
         firestore.collection("workoutPrograms")
                 .document(programId)
                 .collection("workoutDays")
-                .document(dayBId)
-                .set(dayB);
+                .document(day2Id)
+                .set(day2);
 
-        // Add exercises for Day B
-        addExercise(programId, dayBId, "ex1", "Barbell Back Squat", "Legs", "Barbell", 3, 5, 5, 180, 1);
-        addExercise(programId, dayBId, "ex2", "Overhead Press", "Shoulders", "Barbell", 3, 5, 5, 180, 2);
-        addExercise(programId, dayBId, "ex3", "Barbell Row", "Back", "Barbell", 3, 5, 5, 180, 3);
+        // Add exercises for Day 2
+        addExercise(programId, day2Id, "ex1", "Romanian Deadlift", "Legs", "Barbell", 3, 8, 12, 120, 1);
+        addExercise(programId, day2Id, "ex2", "Incline Dumbbell Press", "Chest", "Dumbbell", 3, 8, 12, 90, 2);
+        addExercise(programId, day2Id, "ex3", "Pull-Ups", "Back", "Bodyweight", 3, 5, 10, 120, 3);
+        addExercise(programId, day2Id, "ex4", "Lateral Raises", "Shoulders", "Dumbbell", 2, 12, 15, 60, 4);
 
-        // Full Body Foundation - Beginner
-        String fbfProgramId = "preset_full_body_foundation";
-        WorkoutProgram fbfProgram = new WorkoutProgram();
-        fbfProgram.setProgramId(fbfProgramId);
-        fbfProgram.setUserId(null);
-        fbfProgram.setProgramName("Full Body Foundation");
-        fbfProgram.setDescription("Balanced full-body workouts with higher volume for building muscle endurance and size. Perfect for building a solid fitness base.");
-        fbfProgram.setDifficulty("Beginner");
-        fbfProgram.setDurationWeeks(8);
-        fbfProgram.setDaysPerWeek(4);
-        fbfProgram.setPreset(true);
-        fbfProgram.setActive(false);
-        fbfProgram.setCreatedAt(Timestamp.now());
-        fbfProgram.setUpdatedAt(Timestamp.now());
+        // Add Day 3 - Full Body C
+        String day3Id = "fbs_day_3";
+        WorkoutDay day3 = new WorkoutDay();
+        day3.setDayId(day3Id);
+        day3.setProgramId(programId);
+        day3.setDayNumber(3);
+        day3.setDayName("Day 3 - Full Body C");
 
         firestore.collection("workoutPrograms")
-                .document(fbfProgramId)
-                .set(fbfProgram);
+                .document(programId)
+                .collection("workoutDays")
+                .document(day3Id)
+                .set(day3);
+
+        // Add exercises for Day 3
+        addExercise(programId, day3Id, "ex1", "Leg Press", "Legs", "Machine", 3, 10, 15, 90, 1);
+        addExercise(programId, day3Id, "ex2", "Dumbbell Bench Press", "Chest", "Dumbbell", 3, 8, 12, 90, 2);
+        addExercise(programId, day3Id, "ex3", "Lat Pulldown", "Back", "Cable", 3, 10, 12, 90, 3);
+        addExercise(programId, day3Id, "ex4", "Dumbbell Shoulder Press", "Shoulders", "Dumbbell", 2, 8, 12, 90, 4);
     }
 
     private void seedIntermediatePrograms() {
@@ -118,11 +121,11 @@ public class PresetProgramSeeder {
         WorkoutProgram program = new WorkoutProgram();
         program.setProgramId(programId);
         program.setUserId(null);
-        program.setProgramName("Push Pull Legs (PPL)");
-        program.setDescription("Split training targeting specific muscle groups. Increase training volume and intensity. Ideal for those with 6+ months of consistent training.");
+        program.setProgramName("Push Pull Legs");
+        program.setDescription("Split training for intermediate lifters.");
         program.setDifficulty("Intermediate");
         program.setDurationWeeks(12);
-        program.setDaysPerWeek(6);
+        program.setDaysPerWeek(4);
         program.setPreset(true);
         program.setActive(false);
         program.setCreatedAt(Timestamp.now());
@@ -194,37 +197,37 @@ public class PresetProgramSeeder {
         addExercise(programId, legDayId, "ex4", "Leg Curl", "Legs", "Machine", 3, 12, 12, 60, 4);
         addExercise(programId, legDayId, "ex5", "Calf Raises", "Legs", "Machine", 4, 15, 15, 60, 5);
 
-        // Upper Lower Split - Intermediate
-        String ulProgramId = "preset_upper_lower";
-        WorkoutProgram ulProgram = new WorkoutProgram();
-        ulProgram.setProgramId(ulProgramId);
-        ulProgram.setUserId(null);
-        ulProgram.setProgramName("Upper Lower Split");
-        ulProgram.setDescription("Alternating upper and lower body focus with high volume. Great for balanced strength and muscle development.");
-        ulProgram.setDifficulty("Intermediate");
-        ulProgram.setDurationWeeks(10);
-        ulProgram.setDaysPerWeek(4);
-        ulProgram.setPreset(true);
-        ulProgram.setActive(false);
-        ulProgram.setCreatedAt(Timestamp.now());
-        ulProgram.setUpdatedAt(Timestamp.now());
+        // Upper Day (4th day for 4x/week split)
+        String upperDayId = "ppl_upper";
+        WorkoutDay upperDay = new WorkoutDay();
+        upperDay.setDayId(upperDayId);
+        upperDay.setProgramId(programId);
+        upperDay.setDayNumber(4);
+        upperDay.setDayName("Upper Day");
 
         firestore.collection("workoutPrograms")
-                .document(ulProgramId)
-                .set(ulProgram);
+                .document(programId)
+                .collection("workoutDays")
+                .document(upperDayId)
+                .set(upperDay);
+
+        addExercise(programId, upperDayId, "ex1", "Incline Barbell Bench Press", "Chest", "Barbell", 4, 8, 10, 120, 1);
+        addExercise(programId, upperDayId, "ex2", "Cable Row", "Back", "Cable", 4, 10, 12, 90, 2);
+        addExercise(programId, upperDayId, "ex3", "Dumbbell Shoulder Press", "Shoulders", "Dumbbell", 3, 10, 12, 90, 3);
+        addExercise(programId, upperDayId, "ex4", "Dumbbell Flyes", "Chest", "Dumbbell", 3, 12, 15, 60, 4);
     }
 
     private void seedAdvancedPrograms() {
-        // 5/3/1 Wendler - Advanced
-        String programId = "preset_531_wendler";
+        // Strength & Hypertrophy - Pro
+        String programId = "preset_strength_hypertrophy";
         WorkoutProgram program = new WorkoutProgram();
         program.setProgramId(programId);
         program.setUserId(null);
-        program.setProgramName("5/3/1 Wendler");
-        program.setDescription("High-volume periodized training for experienced lifters. Complex programming with percentage-based loading. Maximize strength and muscle gains.");
-        program.setDifficulty("Advanced");
+        program.setProgramName("Strength & Hypertrophy");
+        program.setDescription("Advanced programming for experienced athletes.");
+        program.setDifficulty("Pro");
         program.setDurationWeeks(16);
-        program.setDaysPerWeek(4);
+        program.setDaysPerWeek(5);
         program.setPreset(true);
         program.setActive(false);
         program.setCreatedAt(Timestamp.now());
@@ -234,24 +237,162 @@ public class PresetProgramSeeder {
                 .document(programId)
                 .set(program);
 
-        // PHAT - Advanced
-        String phatProgramId = "preset_phat";
-        WorkoutProgram phatProgram = new WorkoutProgram();
-        phatProgram.setProgramId(phatProgramId);
-        phatProgram.setUserId(null);
-        phatProgram.setProgramName("PHAT");
-        phatProgram.setDescription("Combining power and hypertrophy across upper/lower splits with varying rep ranges. Advanced program for experienced athletes.");
-        phatProgram.setDifficulty("Advanced");
-        phatProgram.setDurationWeeks(12);
-        phatProgram.setDaysPerWeek(5);
-        phatProgram.setPreset(true);
-        phatProgram.setActive(false);
-        phatProgram.setCreatedAt(Timestamp.now());
-        phatProgram.setUpdatedAt(Timestamp.now());
+        // Day 1 - Heavy Lower
+        String day1Id = "sh_day_1";
+        WorkoutDay day1 = new WorkoutDay();
+        day1.setDayId(day1Id);
+        day1.setProgramId(programId);
+        day1.setDayNumber(1);
+        day1.setDayName("Heavy Lower");
 
         firestore.collection("workoutPrograms")
-                .document(phatProgramId)
-                .set(phatProgram);
+                .document(programId)
+                .collection("workoutDays")
+                .document(day1Id)
+                .set(day1);
+
+        addExercise(programId, day1Id, "ex1", "Barbell Back Squat", "Legs", "Barbell", 5, 3, 5, 240, 1);
+        addExercise(programId, day1Id, "ex2", "Romanian Deadlift", "Legs", "Barbell", 4, 6, 8, 180, 2);
+        addExercise(programId, day1Id, "ex3", "Leg Press", "Legs", "Machine", 4, 10, 12, 120, 3);
+        addExercise(programId, day1Id, "ex4", "Leg Curl", "Legs", "Machine", 3, 10, 12, 90, 4);
+        addExercise(programId, day1Id, "ex5", "Calf Raises", "Legs", "Machine", 4, 12, 15, 60, 5);
+
+        // Day 2 - Heavy Upper
+        String day2Id = "sh_day_2";
+        WorkoutDay day2 = new WorkoutDay();
+        day2.setDayId(day2Id);
+        day2.setProgramId(programId);
+        day2.setDayNumber(2);
+        day2.setDayName("Heavy Upper");
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(day2Id)
+                .set(day2);
+
+        addExercise(programId, day2Id, "ex1", "Barbell Bench Press", "Chest", "Barbell", 5, 3, 5, 240, 1);
+        addExercise(programId, day2Id, "ex2", "Barbell Row", "Back", "Barbell", 5, 3, 5, 240, 2);
+        addExercise(programId, day2Id, "ex3", "Overhead Press", "Shoulders", "Barbell", 4, 6, 8, 180, 3);
+        addExercise(programId, day2Id, "ex4", "Pull-Ups", "Back", "Bodyweight", 3, 8, 10, 120, 4);
+
+        // Day 3 - Hypertrophy Lower
+        String day3Id = "sh_day_3";
+        WorkoutDay day3 = new WorkoutDay();
+        day3.setDayId(day3Id);
+        day3.setProgramId(programId);
+        day3.setDayNumber(3);
+        day3.setDayName("Hypertrophy Lower");
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(day3Id)
+                .set(day3);
+
+        addExercise(programId, day3Id, "ex1", "Front Squat", "Legs", "Barbell", 4, 8, 10, 120, 1);
+        addExercise(programId, day3Id, "ex2", "Bulgarian Split Squat", "Legs", "Dumbbell", 3, 10, 12, 90, 2);
+        addExercise(programId, day3Id, "ex3", "Leg Extension", "Legs", "Machine", 3, 12, 15, 60, 3);
+        addExercise(programId, day3Id, "ex4", "Hamstring Curl", "Legs", "Machine", 3, 12, 15, 60, 4);
+
+        // Day 4 - Hypertrophy Upper
+        String day4Id = "sh_day_4";
+        WorkoutDay day4 = new WorkoutDay();
+        day4.setDayId(day4Id);
+        day4.setProgramId(programId);
+        day4.setDayNumber(4);
+        day4.setDayName("Hypertrophy Upper");
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(day4Id)
+                .set(day4);
+
+        addExercise(programId, day4Id, "ex1", "Incline Dumbbell Press", "Chest", "Dumbbell", 4, 8, 12, 90, 1);
+        addExercise(programId, day4Id, "ex2", "Cable Row", "Back", "Cable", 4, 10, 12, 90, 2);
+        addExercise(programId, day4Id, "ex3", "Lateral Raises", "Shoulders", "Dumbbell", 4, 12, 15, 60, 3);
+        addExercise(programId, day4Id, "ex4", "Tricep Pushdown", "Arms", "Cable", 3, 12, 15, 60, 4);
+
+        // Day 5 - Full Body Pump
+        String day5Id = "sh_day_5";
+        WorkoutDay day5 = new WorkoutDay();
+        day5.setDayId(day5Id);
+        day5.setProgramId(programId);
+        day5.setDayNumber(5);
+        day5.setDayName("Full Body Pump");
+
+        firestore.collection("workoutPrograms")
+                .document(programId)
+                .collection("workoutDays")
+                .document(day5Id)
+                .set(day5);
+
+        addExercise(programId, day5Id, "ex1", "Hack Squat", "Legs", "Machine", 3, 12, 15, 90, 1);
+        addExercise(programId, day5Id, "ex2", "Dumbbell Bench Press", "Chest", "Dumbbell", 3, 12, 15, 90, 2);
+        addExercise(programId, day5Id, "ex3", "Lat Pulldown", "Back", "Cable", 3, 12, 15, 90, 3);
+        addExercise(programId, day5Id, "ex4", "Face Pulls", "Shoulders", "Cable", 3, 15, 20, 60, 4);
+
+        // Elite Powerbuilding - Elite
+        String eliteProgramId = "preset_elite_powerbuilding";
+        WorkoutProgram eliteProgram = new WorkoutProgram();
+        eliteProgram.setProgramId(eliteProgramId);
+        eliteProgram.setUserId(null);
+        eliteProgram.setProgramName("Elite Powerbuilding");
+        eliteProgram.setDescription("High-volume training for elite lifters.");
+        eliteProgram.setDifficulty("Elite");
+        eliteProgram.setDurationWeeks(16);
+        eliteProgram.setDaysPerWeek(6);
+        eliteProgram.setPreset(true);
+        eliteProgram.setActive(false);
+        eliteProgram.setCreatedAt(Timestamp.now());
+        eliteProgram.setUpdatedAt(Timestamp.now());
+
+        firestore.collection("workoutPrograms")
+                .document(eliteProgramId)
+                .set(eliteProgram);
+
+        // Add 6 workout days for Elite program
+        for (int i = 1; i <= 6; i++) {
+            String dayId = "elite_day_" + i;
+            WorkoutDay day = new WorkoutDay();
+            day.setDayId(dayId);
+            day.setProgramId(eliteProgramId);
+            day.setDayNumber(i);
+            
+            String dayName;
+            switch(i) {
+                case 1: dayName = "Heavy Squat + Accessories"; break;
+                case 2: dayName = "Heavy Bench + Accessories"; break;
+                case 3: dayName = "Heavy Deadlift + Accessories"; break;
+                case 4: dayName = "Volume Upper"; break;
+                case 5: dayName = "Volume Lower"; break;
+                case 6: dayName = "Conditioning + Accessories"; break;
+                default: dayName = "Day " + i; break;
+            }
+            day.setDayName(dayName);
+
+            firestore.collection("workoutPrograms")
+                    .document(eliteProgramId)
+                    .collection("workoutDays")
+                    .document(dayId)
+                    .set(day);
+
+            // Add sample exercises for each day
+            if (i == 1) {
+                addExercise(eliteProgramId, dayId, "ex1", "Barbell Back Squat", "Legs", "Barbell", 5, 1, 3, 300, 1);
+                addExercise(eliteProgramId, dayId, "ex2", "Front Squat", "Legs", "Barbell", 4, 6, 8, 180, 2);
+                addExercise(eliteProgramId, dayId, "ex3", "Leg Press", "Legs", "Machine", 4, 10, 12, 120, 3);
+            } else if (i == 2) {
+                addExercise(eliteProgramId, dayId, "ex1", "Barbell Bench Press", "Chest", "Barbell", 5, 1, 3, 300, 1);
+                addExercise(eliteProgramId, dayId, "ex2", "Incline Bench Press", "Chest", "Barbell", 4, 6, 8, 180, 2);
+                addExercise(eliteProgramId, dayId, "ex3", "Dumbbell Flyes", "Chest", "Dumbbell", 3, 12, 15, 90, 3);
+            } else if (i == 3) {
+                addExercise(eliteProgramId, dayId, "ex1", "Deadlift", "Back", "Barbell", 5, 1, 3, 300, 1);
+                addExercise(eliteProgramId, dayId, "ex2", "Romanian Deadlift", "Back", "Barbell", 4, 6, 8, 180, 2);
+                addExercise(eliteProgramId, dayId, "ex3", "Pull-Ups", "Back", "Bodyweight", 4, 8, 10, 120, 3);
+            }
+        }
     }
 
     private void addExercise(String programId, String dayId, String exerciseId,
@@ -273,7 +414,7 @@ public class PresetProgramSeeder {
                 .document(programId)
                 .collection("workoutDays")
                 .document(dayId)
-                .collection("exercises")
+                .collection("programExercises")
                 .document(exerciseId)
                 .set(exercise);
     }
