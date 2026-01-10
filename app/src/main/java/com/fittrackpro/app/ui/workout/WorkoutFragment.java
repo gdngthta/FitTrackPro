@@ -58,7 +58,7 @@ public class WorkoutFragment extends Fragment {
             viewModel.setUserId(userId);
         }
 
-        // Initialize preset programs
+        // Initialize preset programs to ensure they exist in Firestore
         viewModel.initializePresetPrograms();
 
         setupRecyclerViews();
