@@ -8,7 +8,7 @@
     android:layout_margin="16dp"
     app:cardElevation="4dp"
     app:cardCornerRadius="12dp"
-    app:cardBackgroundColor="@color/dark_gray">
+    app:cardBackgroundColor="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/white"
+            android:textColor="?attr/colorOnSurface"
             tools:text="Push Pull Legs" />
 
         <!-- Progress Indicator -->
@@ -32,8 +32,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            app:indicatorColor="@color/emerald_green"
-            app:trackColor="@color/md_theme_surfaceVariant"
+            app:indicatorColor="?attr/colorPrimary"
+            app:trackColor="?attr/colorSurfaceVariant"
             app:trackCornerRadius="4dp"
             android:progress="37"
             tools:progress="37" />
@@ -50,7 +50,7 @@
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_calendar"
-                app:tint="@color/md_theme_onSurfaceVariant"
+                app:tint="?attr/colorOnSurfaceVariant"
                 android:contentDescription="Week" />
 
             <TextView
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:textSize="14sp"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Week 3 of 8" />
         </LinearLayout>
 
@@ -80,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
                 android:textStyle="bold"
-                android:textColor="@color/emerald_green"
+                android:textColor="?attr/colorPrimary"
                 tools:text="Today's Workout: Push Day" />
 
             <TextView
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:textSize="12sp"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Bench Press, OHP, Incline Press +3 more" />
         </LinearLayout>
 
@@ -110,7 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="14sp"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Rest Day" />
         </LinearLayout>
 
@@ -122,8 +122,8 @@
             android:layout_marginTop="16dp"
             android:text="Start Today's Workout"
             android:textSize="16sp"
-            android:backgroundTint="@color/emerald_green"
-            android:textColor="@color/white"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"
             style="@style/Widget.Material3.Button" />
 
         <com.google.android.material.button.MaterialButton
