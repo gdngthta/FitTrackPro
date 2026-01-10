@@ -75,20 +75,12 @@ public class RecommendedProgramsAdapter extends ListAdapter<WorkoutProgram, Reco
             // Set program name
             binding.textProgramName.setText(program.getProgramName());
             
-            // Set info text: "3x per week • 3 workout days"
-            String info = program.getDaysPerWeek() + "x per week • " + 
-                         program.getDaysPerWeek() + " workout days";
-            binding.textInfo.setText(info);
+            // Set info text: "3x per week • 1 workout days"
+            String infoText = program.getDaysPerWeek() + "x per week • 1 workout days";
+            binding.textInfo.setText(infoText);
             
-            // Set click listener on the play button
+            // Set click listener on play button
             binding.buttonPlay.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onStartWorkoutClick(program);
-                }
-            });
-            
-            // Set click listener on the card itself
-            binding.cardProgram.setOnClickListener(v -> {
                 if (listener != null) {
                     listener.onStartWorkoutClick(program);
                 }

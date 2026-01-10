@@ -65,7 +65,7 @@ public class PresetProgramListFragment extends Fragment {
             }
         });
 
-        binding. recyclerPresets.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerPresets.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerPresets.setAdapter(adapter);
     }
 
@@ -84,16 +84,20 @@ public class PresetProgramListFragment extends Fragment {
     }
 
     private void duplicateAndNavigate(WorkoutProgram program) {
-        binding.progressBar.setVisibility(View. VISIBLE);
+        binding.progressBar.setVisibility(View.VISIBLE);
+        
+        android.util.Log.d("PresetProgramList", "Starting duplication of program: " + program.getProgramName() + " (ID: " + program.getProgramId() + ")");
 
-        viewModel.duplicatePreset(program. getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
-            binding. progressBar.setVisibility(View.GONE);
+        viewModel.duplicatePreset(program.getProgramId()).observe(getViewLifecycleOwner(), newProgramId -> {
+            binding.progressBar.setVisibility(View.GONE);
 
             if (newProgramId != null) {
+                android.util.Log.d("PresetProgramList", "Program duplicated successfully with ID: " + newProgramId);
                 Toast.makeText(requireContext(), "Program added to My Programs!", Toast.LENGTH_SHORT).show();
                 Navigation.findNavController(binding.getRoot()).navigateUp();
             } else {
-                Toast.makeText(requireContext(), "Failed to add program", Toast.LENGTH_SHORT).show();
+                android.util.Log.e("PresetProgramList", "Failed to duplicate program - received null ID");
+                Toast.makeText(requireContext(), "Failed to add program. Please check your connection and try again.", Toast.LENGTH_LONG).show();
             }
         });
     }

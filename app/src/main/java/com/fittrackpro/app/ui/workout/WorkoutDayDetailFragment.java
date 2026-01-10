@@ -1,7 +1,6 @@
 package com.fittrackpro.app.ui.workout;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +13,10 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.fittrackpro.app.R;
-import com.fittrackpro.app.data.local.AppDatabase;
-import com.fittrackpro.app.data.repository.WorkoutRepository;
 import com.fittrackpro.app.databinding.FragmentWorkoutDayDetailBinding;
+import com.fittrackpro.app.data.local.AppDatabase;
 import com.fittrackpro.app.data.model.ProgramExercise;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
+import com.fittrackpro.app.data.repository.WorkoutRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +32,7 @@ public class WorkoutDayDetailFragment extends Fragment {
     private String dayName;
     private List<ProgramExercise> exercises = new ArrayList<>();
     private WorkoutRepository workoutRepository;
-    private FirebaseFirestore firestore;
-    private ListenerRegistration exerciseListener;
+    private ExerciseAdapter exerciseAdapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -49,20 +45,63 @@ public class WorkoutDayDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize repository and firestore
-        AppDatabase database = AppDatabase.getInstance(requireContext());
-        workoutRepository = new WorkoutRepository(database);
-        firestore = FirebaseFirestore.getInstance();
-
         if (getArguments() != null) {
             programId = getArguments().getString("programId");
             dayId = getArguments().getString("dayId");
             dayName = getArguments().getString("dayName", "Workout Day");
         }
 
+        // Initialize repository
+        AppDatabase database = AppDatabase.getInstance(requireContext());
+        workoutRepository = new WorkoutRepository(database);
+
         setupUI();
         setupListeners();
-        observeExercises();
+        setupFragmentResultListener();
+        loadExercises();
+    }
+
+    private void setupFragmentResultListener() {
+        // Listen for exercise addition result
+        getParentFragmentManager().setFragmentResultListener("exercise_added", this, (requestKey, result) -> {
+            android.util.Log.d("WorkoutDayDetail", "Received exercise result");
+            
+            String exerciseName = result.getString("exerciseName");
+            String muscleGroup = result.getString("muscleGroup");
+            String equipment = result.getString("equipment");
+            int targetSets = result.getInt("targetSets");
+            int targetRepsMin = result.getInt("targetRepsMin");
+            int targetRepsMax = result.getInt("targetRepsMax");
+            int restSeconds = result.getInt("restSeconds");
+            
+            android.util.Log.d("WorkoutDayDetail", "Adding exercise: " + exerciseName);
+            
+            // Create ProgramExercise object
+            ProgramExercise exercise = new ProgramExercise();
+            exercise.setExerciseName(exerciseName);
+            exercise.setMuscleGroup(muscleGroup);
+            exercise.setEquipment(equipment);
+            exercise.setTargetSets(targetSets);
+            exercise.setTargetRepsMin(targetRepsMin);
+            exercise.setTargetRepsMax(targetRepsMax);
+            exercise.setRestSeconds(restSeconds);
+            exercise.setOrderIndex(exercises.size() + 1);
+            
+            // Save to repository
+            workoutRepository.addExercise(programId, dayId, exercise).observe(getViewLifecycleOwner(), success -> {
+                if (success != null && success) {
+                    android.util.Log.d("WorkoutDayDetail", "Exercise saved successfully");
+                    Toast.makeText(requireContext(), "Exercise added!", Toast.LENGTH_SHORT).show();
+                    
+                    // Add to local list and update UI
+                    exercises.add(exercise);
+                    updateExerciseList();
+                } else {
+                    android.util.Log.e("WorkoutDayDetail", "Failed to save exercise");
+                    Toast.makeText(requireContext(), "Failed to add exercise", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
     }
 
     private void setupUI() {
@@ -103,42 +142,27 @@ public class WorkoutDayDetailFragment extends Fragment {
         });
     }
 
-    private void observeExercises() {
-        if (programId == null || dayId == null) {
-            Log.e("WorkoutDayDetail", "Missing programId or dayId");
-            return;
+    private void loadExercises() {
+        android.util.Log.d("WorkoutDayDetail", "Loading exercises for programId: " + programId + ", dayId: " + dayId);
+        
+        if (programId != null && dayId != null) {
+            workoutRepository.getExercisesForDay(programId, dayId).observe(getViewLifecycleOwner(), exerciseList -> {
+                if (exerciseList != null) {
+                    android.util.Log.d("WorkoutDayDetail", "Loaded " + exerciseList.size() + " exercises");
+                    exercises.clear();
+                    exercises.addAll(exerciseList);
+                    updateExerciseList();
+                } else {
+                    android.util.Log.w("WorkoutDayDetail", "Exercise list is null");
+                }
+            });
+        } else {
+            android.util.Log.w("WorkoutDayDetail", "programId or dayId is null");
+            updateExerciseList();
         }
-
-        // Set up real-time listener for exercises
-        exerciseListener = firestore.collection("workoutPrograms")
-                .document(programId)
-                .collection("workoutDays")
-                .document(dayId)
-                .collection("programExercises")
-                .orderBy("orderIndex")
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e("WorkoutDayDetail", "Error listening to exercises", error);
-                        return;
-                    }
-
-                    if (snapshots != null) {
-                        exercises.clear();
-                        for (com.google.firebase.firestore.DocumentSnapshot doc : snapshots) {
-                            ProgramExercise exercise = doc.toObject(ProgramExercise.class);
-                            if (exercise != null) {
-                                exercise.setExerciseId(doc.getId());
-                                exercises.add(exercise);
-                            }
-                        }
-
-                        Log.d("WorkoutDayDetail", "Loaded " + exercises.size() + " exercises");
-                        updateExerciseUI();
-                    }
-                });
     }
 
-    private void updateExerciseUI() {
+    private void updateExerciseList() {
         if (exercises.isEmpty()) {
             binding.cardEmptyState.setVisibility(View.VISIBLE);
             binding.recyclerExercises.setVisibility(View.GONE);
@@ -148,15 +172,15 @@ public class WorkoutDayDetailFragment extends Fragment {
             binding.recyclerExercises.setVisibility(View.VISIBLE);
             binding.cardAddExercise.setVisibility(View.VISIBLE);
             
-            // TODO: Setup RecyclerView with exercises adapter
-            // For now, this will show the exercises area
-            Log.d("WorkoutDayDetail", "Displaying " + exercises.size() + " exercises");
+            // Setup RecyclerView with exercises
+            if (exerciseAdapter == null) {
+                exerciseAdapter = new ExerciseAdapter(exercises);
+                binding.recyclerExercises.setLayoutManager(new LinearLayoutManager(requireContext()));
+                binding.recyclerExercises.setAdapter(exerciseAdapter);
+            } else {
+                exerciseAdapter.notifyDataSetChanged();
+            }
         }
-    }
-
-    private void loadExercises() {
-        // This method is now replaced by observeExercises()
-        updateExerciseUI();
     }
 
     private void navigateToExerciseLibrary() {
@@ -170,13 +194,61 @@ public class WorkoutDayDetailFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        
-        // Remove Firestore listener
-        if (exerciseListener != null) {
-            exerciseListener.remove();
-            exerciseListener = null;
-        }
-        
         binding = null;
+    }
+
+    // Simple adapter for exercises
+    private static class ExerciseAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder> {
+        private final List<ProgramExercise> exercises;
+
+        ExerciseAdapter(List<ProgramExercise> exercises) {
+            this.exercises = exercises;
+        }
+
+        @NonNull
+        @Override
+        public ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_exercise, parent, false);
+            return new ExerciseViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
+            holder.bind(exercises.get(position));
+        }
+
+        @Override
+        public int getItemCount() {
+            return exercises.size();
+        }
+
+        static class ExerciseViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+            private final android.widget.TextView textNumber;
+            private final android.widget.TextView textExerciseName;
+            private final android.widget.TextView textDetails;
+            private final android.widget.TextView textMuscleInfo;
+
+            ExerciseViewHolder(View view) {
+                super(view);
+                textNumber = view.findViewById(R.id.textNumber);
+                textExerciseName = view.findViewById(R.id.textExerciseName);
+                textDetails = view.findViewById(R.id.textDetails);
+                textMuscleInfo = view.findViewById(R.id.textMuscleInfo);
+            }
+
+            void bind(ProgramExercise exercise) {
+                textNumber.setText((getAdapterPosition() + 1) + ".");
+                textExerciseName.setText(exercise.getExerciseName());
+                
+                String details = exercise.getTargetSets() + " sets • " + 
+                               exercise.getTargetRepsMin() + "-" + exercise.getTargetRepsMax() + " reps • " +
+                               exercise.getRestSeconds() + "s rest";
+                textDetails.setText(details);
+                
+                String muscleInfo = exercise.getMuscleGroup() + " • " + exercise.getEquipment();
+                textMuscleInfo.setText(muscleInfo);
+            }
+        }
     }
 }
