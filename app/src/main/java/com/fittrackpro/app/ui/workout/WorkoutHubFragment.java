@@ -101,25 +101,25 @@ public class WorkoutHubFragment extends Fragment {
             }
         };
 
-        // My Programs
-        myProgramsAdapter = new WorkoutProgramAdapter(listener);
+        // My Programs (filled play buttons)
+        myProgramsAdapter = new WorkoutProgramAdapter(listener, false);
         binding.recyclerMyPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerMyPrograms.setAdapter(myProgramsAdapter);
 
-        // Recommended Programs by difficulty
-        beginnerAdapter = new WorkoutProgramAdapter(listener);
+        // Recommended Programs by difficulty (outlined play buttons)
+        beginnerAdapter = new WorkoutProgramAdapter(listener, true);
         binding.recyclerBeginnerPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerBeginnerPrograms.setAdapter(beginnerAdapter);
 
-        intermediateAdapter = new WorkoutProgramAdapter(listener);
+        intermediateAdapter = new WorkoutProgramAdapter(listener, true);
         binding.recyclerIntermediatePrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerIntermediatePrograms.setAdapter(intermediateAdapter);
 
-        proAdapter = new WorkoutProgramAdapter(listener);
+        proAdapter = new WorkoutProgramAdapter(listener, true);
         binding.recyclerProPrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerProPrograms.setAdapter(proAdapter);
 
-        eliteAdapter = new WorkoutProgramAdapter(listener);
+        eliteAdapter = new WorkoutProgramAdapter(listener, true);
         binding.recyclerElitePrograms.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerElitePrograms.setAdapter(eliteAdapter);
     }
