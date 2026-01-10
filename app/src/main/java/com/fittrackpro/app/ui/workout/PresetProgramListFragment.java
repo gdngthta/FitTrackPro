@@ -52,7 +52,7 @@ public class PresetProgramListFragment extends Fragment {
 
         viewModel.getPresetPrograms().observe(getViewLifecycleOwner(), programs -> {
             if (programs != null) {
-                adapter.setPrograms(programs);
+                adapter.submitList(programs);
             }
         });
     }
@@ -60,18 +60,12 @@ public class PresetProgramListFragment extends Fragment {
     private void setupRecyclerView() {
         adapter = new RecommendedProgramsAdapter(new RecommendedProgramsAdapter.OnProgramClickListener() {
             @Override
-            public void onProgramClick(WorkoutProgram program) {
-                // Show program details dialog
-                showProgramDetails(program);
-            }
-
-            @Override
             public void onStartWorkoutClick(WorkoutProgram program) {
                 duplicateAndNavigate(program);
             }
         });
 
-        binding. recyclerPresets.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.recyclerPresets.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerPresets.setAdapter(adapter);
     }
 
