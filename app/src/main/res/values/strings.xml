@@ -80,6 +80,10 @@
 
     <!-- Workout -->
     <string name="add_routine">Add Routine</string>
+    <string name="add_new_routine">Add New Routine</string>
+    <string name="workout_subtitle">Choose a program or create your own</string>
+    <string name="my_programs">My Programs</string>
+    <string name="recommended_programs">Recommended Programs</string>
     <string name="choose_program_type">Choose how you\'d like to start</string>
     <string name="use_preset_program">Start from Preset</string>
     <string name="use_preset_description">Choose from expertly designed programs tailored to your experience level. You can customize them after duplication.</string>
